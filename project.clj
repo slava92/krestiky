@@ -3,4 +3,5 @@
   :url "https://github.com/slava92/krestiky"
   :license {:name "Unlicense"
             :url "http://unlicense.org"}
-  :dependencies [[org.clojure/clojure "1.6.0"]])
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/core.match "0.3.0-alpha4"]])
