@@ -23,8 +23,8 @@
   (toSymbol [this] c)
   (toString [this] s))
 
-(def Player1 (->player \A "Alice"))
-(def Player2 (->player \B "Bob"))
+(def Player1 (->player \O "Alice"))
+(def Player2 (->player \X "Bob"))
 
 (t/ann valueOf [String -> Player])
 (defn valueOf [name]
