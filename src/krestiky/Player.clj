@@ -4,34 +4,33 @@
 
 (t/defprotocol Player
   "A Player"
-  (alternate [this] "Returns player that has the next move.")
-  (toSymbol [this] "Returns symbol representing the player.")
-  (toString [this] "Returns string representing the player."))
+  (alternate [this :- Player] :- Player
+             "Returns player that has the next move.")
+  (toSymbol [this :- Player] :- char
+            "Returns symbol representing the player.")
+  (toString [this :- Player] :- String
+            "Returns string representing the player."))
 
-(t/ann-datatype player1 [])
-(deftype player1 [])
+(t/ann Player1 Player)
+(declare Player1)
+(t/ann Player2 Player)
+(declare Player2)
 
-(t/ann-datatype player2 [])
-(deftype player2 [])
+(t/ann-datatype player [c :- char s :- String])
+(deftype ^:private player [c s]
+  Player
+  (alternate [this] (if (= this Player1) Player2 Player1))
+  (toSymbol [this] c)
+  (toString [this] s))
 
-(def Player1 (player1.))
-(def Player2 (player2.))
+(def Player1 (->player \A "Alice"))
+(def Player2 (->player \B "Bob"))
 
-(extend-protocol Player
-  player1
-  (alternate [this] Player2)
-  (toSymbol [this] \A)
-  (toString [this] "A")
-
-  player2
-  (alternate [this] Player1)
-  (toSymbol [this] \B)
-  (toString [this] "B"))
-
-(t/ann valueOf [String -> (t/U player1 player2)])
+(t/ann valueOf [String -> Player])
 (defn valueOf [name]
   (match name
-         "A" Player1
-         "B" Player2))
+         "Alice" Player1
+         "Bob" Player2))
 
-(defn values [] [Player1 Player2])
+(t/ann values (t/Vec Player))
+(def values [Player1 Player2])
