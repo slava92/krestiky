@@ -4,6 +4,7 @@
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t]))
 (set! *warn-on-reflection* true)
+(t/defprotocol [[x :variance :covariant]] P1 (_1 [this :- (P1 x)] :- x))
 
 ;; abstract boolean	isEmpty() 
 ;; abstract int	nmoves() 
@@ -17,10 +18,6 @@
   (occupiedPositions [this :- BoardLike] :- (t/Seqable Position))
   (playerAt [this :- BoardLike p :- Position] :- (t/Option Player))
   (whoseTurn [this :- BoardLike] :- Player))
-
-(t/defprotocol [[x :variance :covariant]]
-  P1
-  (_1 [this :- (P1 x)] :- x))
 
 (t/defn isNotOccupied [this :- BoardLike p :- Position] :- boolean
   (= nil (playerAt this p)))

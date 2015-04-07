@@ -1,25 +1,24 @@
 (ns krestiky.Board
-  (:require [krestiky.BoardLike :refer [BoardLike]]
+  (:require [krestiky.BoardLike :refer [BoardLike] :as BL]
             [krestiky.Position :refer [Position toInt] :as Pos]
             [krestiky.Player :refer [Player alternate]]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t])
   (:import (clojure.lang APersistentMap)))
 (set! *warn-on-reflection* true)
-
-(t/defalias Board board-type)
-(t/ann-datatype board-type
-                [nextMove :- Player
-                 posMap :- (APersistentMap t/AnyInteger Player)
-                 nMoves :- t/AnyInteger
-                 before :- (t/Option Board)])
 (t/defalias TakenBack t/Any)
 (t/defalias MoveResult t/Any)
-(t/defprotocol BoardImpl
-  "Implementation specific methods"
-  (takeBack [this :- BoardImpl] :- TakenBack)
-  (moveTo [this :- BoardImpl pos :- Position] :- MoveResult))
 
+(t/defprotocol Board
+  "Implementation specific methods"
+  (takeBack [this :- Board] :- TakenBack)
+  (moveTo [this :- Board pos :- Position] :- MoveResult))
+
+(t/ann-datatype
+ board-type [nextMove :- Player
+             posMap :- (APersistentMap t/AnyInteger Player)
+             nMoves :- t/AnyInteger
+             before :- (t/Option board-type)])
 (deftype board-type [nextMove posMap nMoves before]
   BoardLike
   (isEmpty [this] false)
@@ -31,6 +30,6 @@
     (get posMap (Pos/toInt pos)))
   (whoseTurn [this] nextMove)
   (toString [this] "")
-  BoardImpl
+  Board
   (takeBack [this] nil)
   (moveTo [this pos] nil))
