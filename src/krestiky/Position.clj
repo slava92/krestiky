@@ -1,19 +1,20 @@
 (ns krestiky.Position
   (:require [clojure.core.match :refer [match]]
             [clojure.core.typed :as t]))
+(set! *warn-on-reflection* true)
 
 (t/defprotocol Position
   "Position on Board"
   (toChar [this :- Position] :- char
           "Convert Position to character")
-  (toInt [this :- Position] :- int
+  (toInt [this :- Position] :- t/AnyInteger
          "Convert Position to integer"))
 
-(t/ann-datatype position [c :- char i :- int])
+(t/ann-datatype position [c :- char i :- t/AnyInteger])
 (deftype ^:private position [c i]
-         Position
-         (toChar [this] c)
-         (toInt [this] i))
+  Position
+  (toChar [this] c)
+  (toInt [this] i))
 
 (def NW (->position \1 1))
 (def N  (->position \2 2))
@@ -24,6 +25,8 @@
 (def SW (->position \7 7))
 (def S  (->position \8 8))
 (def SE (->position \9 9))
+
+(t/ann values (t/Seqable Position))
 (def values [NE N NW W C E SW S SE])
 
 (t/ann fromChar [char -> Position])
@@ -33,7 +36,7 @@
          \4 W  \5 C \6 E
          \7 SW \8 S \9 SE))
 
-(t/ann fromInt [int -> Position])
+(t/ann fromInt [t/AnyInteger -> Position])
 (defn fromInt [i]
   (match i
          1 NW 2 N 3 NE

@@ -2,6 +2,7 @@
   (:require [krestiky.Player :refer [Player Player1 Player2]]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t]))
+(set! *warn-on-reflection* true)
 
 (t/defprotocol
     GameResult

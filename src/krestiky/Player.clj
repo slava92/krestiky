@@ -1,6 +1,7 @@
 (ns krestiky.Player
   (:require [clojure.core.match :refer [match]]
             [clojure.core.typed :as t]))
+(set! *warn-on-reflection* true)
 
 (t/defprotocol Player
   "A Player"
@@ -32,5 +33,5 @@
          "Alice" Player1
          "Bob" Player2))
 
-(t/ann values (t/Vec Player))
+(t/ann values (t/Seqable Player))
 (def values [Player1 Player2])

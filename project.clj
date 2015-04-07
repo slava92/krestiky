@@ -8,4 +8,5 @@
                  [org.clojure/core.typed "0.2.84"]]
   ;; core.typed repository:
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
-  :core.typed {:check [krestiky.Player krestiky.Position krestiky.GameResult]})
+  :core.typed {:check [krestiky.Player krestiky.Position
+                       krestiky.GameResult krestiky.BoardLike]})
