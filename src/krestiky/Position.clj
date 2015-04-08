@@ -3,18 +3,55 @@
             [clojure.core.typed :as t]))
 (set! *warn-on-reflection* true)
 
+(t/ann NW Position)
+(declare NW)
+(t/ann N Position)
+(declare N)
+(t/ann NE Position)
+(declare NE)
+(t/ann W Position)
+(declare W)
+(t/ann C Position)
+(declare C)
+(t/ann E Position)
+(declare E)
+(t/ann SW Position)
+(declare SW)
+(t/ann S Position)
+(declare S)
+(t/ann SE Position)
+(declare SE)
+
 (t/defprotocol Position
   "Position on Board"
   (toChar [this :- Position] :- char
           "Convert Position to character")
   (toInt [this :- Position] :- t/AnyInteger
-         "Convert Position to integer"))
+         "Convert Position to integer")
+  (fromChar [this :- Position c :- char] :- Position)
+  (fromInt [this :- Position i :- t/AnyInteger] :- Position)
+  (valueOf [this :- Position s :- String] :- Position))
 
 (t/ann-datatype position [c :- char i :- t/AnyInteger])
 (deftype ^:private position [c i]
   Position
-  (toChar [this] c)
-  (toInt [this] i))
+  (toChar [_] c)
+  (toInt [_] i)
+  (fromChar [_ c]
+    (match c
+           \1 NW \2 N \3 NE
+           \4 W  \5 C \6 E
+           \7 SW \8 S \9 SE))
+  (fromInt [_ i]
+    (match i
+           1 NW 2 N 3 NE
+           4 W  5 C 6 E
+           7 SW 8 S 9 SE))
+  (valueOf [_ s]
+    (match s
+           "NW" NW "N" N "NE" NE
+           "W"  W  "C" C "E"  E
+           "SW" SW "S" S "SE" SE)))
 
 (def NW (->position \1 1))
 (def N  (->position \2 2))
@@ -28,24 +65,3 @@
 
 (t/ann values (t/Seqable Position))
 (def values [NE N NW W C E SW S SE])
-
-(t/ann fromChar [char -> Position])
-(defn fromChar [c]
-  (match c
-         \1 NW \2 N \3 NE
-         \4 W  \5 C \6 E
-         \7 SW \8 S \9 SE))
-
-(t/ann fromInt [t/AnyInteger -> Position])
-(defn fromInt [i]
-  (match i
-         1 NW 2 N 3 NE
-         4 W  5 C 6 E
-         7 SW 8 S 9 SE))
-
-(t/ann valueOf [String -> Position])
-(defn valueOf [s]
-  (match s
-         "NW" NW "N" N "NE" NE
-         "W"  W  "C" C "E"  E
-         "SW" SW "S" S "SE" SE))

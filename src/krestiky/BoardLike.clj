@@ -6,43 +6,47 @@
 (set! *warn-on-reflection* true)
 (t/defprotocol [[x :variance :covariant]] P1 (_1 [this :- (P1 x)] :- x))
 
+(t/defprotocol IBoardLike
+  "A IBoardLike thing"
+  (isEmpty [this :-  IBoardLike] :- boolean)
+  (nmoves [this :- IBoardLike] :- t/AnyInteger)
+  (occupiedPositions [this :- IBoardLike] :- (t/Seqable Position))
+  (playerAt [this :- IBoardLike p :- Position] :- (t/Option Player))
+  (whoseTurn [this :- IBoardLike] :- Player)
+  (isOccupied [tis :- IBoardLike p :- Position] :- boolean)
+  (isNotOccupied [tis :- IBoardLike p :- Position] :- boolean)
+  (playerAtOr [this :- IBoardLike p :- Position or :- (P1 Player)] :- Player)
+  (whoseNotTurn [this :- IBoardLike] :- Player)
+  (toString [this :- IBoardLike
+             af :- (t/IFn [(t/Option Player) Position -> char])] :- String))
+
+(deftype BoardLike []
+  IBoardLike
+  (isEmpty [this] (throw (Exception. "abstract")))
+  (nmoves [this] (throw (Exception. "abstract")))
+  (occupiedPositions [this] (throw (Exception. "abstract")))
+  (playerAt [this p] (throw (Exception. "abstract")))
+  (whoseTurn [this] (throw (Exception. "abstract")))
+  (isOccupied [this p]
+    (not= nil (playerAt this p)))
+  (isNotOccupied [this p]
+    (= nil (playerAt this p)))
+  (whoseNotTurn [this]
+    (alternate (whoseTurn this)))
+  (toString
+    [this af]
+    (let [ps (->> Pos/values (sort-by Pos/toInt)
+                  (map (t/fn [p :- Position] :- char (af (playerAt this p) p)))
+                  (partition-all 3)
+                  (map (t/fn [cs :- (t/Seqable char)] (interpose \space cs)))
+                  (interpose ["\n"]))]
+      (apply str (concat ps)))))
+
 ;; abstract boolean	isEmpty() 
 ;; abstract int	nmoves() 
 ;; abstract fj.data.List<Position>	occupiedPositions() 
 ;; abstract fj.data.Option<Player>	playerAt(Position p) 
 ;; abstract Player	whoseTurn() 
-(t/defprotocol BoardLike
-  "A BoardLike thing"
-  (isEmpty [this :-  BoardLike] :- boolean)
-  (nmoves [this :- BoardLike] :- t/AnyInteger)
-  (occupiedPositions [this :- BoardLike] :- (t/Seqable Position))
-  (playerAt [this :- BoardLike p :- Position] :- (t/Option Player))
-  (whoseTurn [this :- BoardLike] :- Player))
-
-(t/defn isNotOccupied [this :- BoardLike p :- Position] :- boolean
-  (= nil (playerAt this p)))
-
-(t/defn isOccupied [this :- BoardLike p :- Position] :- boolean
-  (not= nil (playerAt this p)))
-
-(t/defn playerAtOr [this :- BoardLike p :- Position or :- (P1 Player)] :- Player
-  (let [player (playerAt this p)]
-    (if (= nil player) (_1 or) player)))
-
-(t/defn whoseNotTurn [this :- BoardLike] :- Player
-  (alternate (whoseTurn this)))
-
-(t/ann clojure.core/sort-by (t/All [a b] [[a -> b] (t/Seqable a) -> (t/Seqable a)]))
-(t/defn toString
-  [this :- BoardLike
-   af :- (t/IFn [(t/Option Player) Position -> char])] :- String
-   (let [ps (->> Pos/values (sort-by Pos/toInt)
-                 (map (t/fn [p :- Position] :- char (af (playerAt this p) p)))
-                 (partition-all 3)
-                 (map (t/fn [cs :- (t/Seqable char)] (interpose \space cs)))
-                 (interpose ["\n"]))]
-     (apply str (concat ps))))
-
 ;; boolean	isNotOccupied(Position p) 
 ;; boolean	isOccupied(Position p) 
 ;; Player	playerAtOr(Position p, fj.P1<Player> or) 

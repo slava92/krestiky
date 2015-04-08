@@ -5,42 +5,38 @@
 (set! *warn-on-reflection* true)
 
 (t/defprotocol
-    GameResult
+    IGameResult
   "Game Result"
-  (isDraw [this :- GameResult] :- boolean)
-  (isWin [this :- GameResult] :- boolean)
-  ([x] strictFold [this  :- GameResult
+  (isDraw [this :- IGameResult] :- boolean)
+  (isWin [this :- IGameResult] :- boolean)
+  ([x] strictFold [this  :- IGameResult
                    player1Wins :- x player2Wins :- x draw :- x] :- x)
-  (toString [this :- GameResult] :- String)
-  (winner [this :- GameResult] :- (t/Option Player)))
+  (toString [this :- IGameResult] :- String)
+  (winner [this :- IGameResult] :- (t/Option Player)))
 
-(t/ann Draw GameResult)
+(t/ann Draw IGameResult)
 (declare Draw)
-(t/ann Player1Wins GameResult)
+(t/ann Player1Wins IGameResult)
 (declare Player1Wins)
-(t/ann Player2Wins GameResult)
+(t/ann Player2Wins IGameResult)
 (declare Player2Wins)
 
-(t/ann-datatype game-result [r :- char])
-(deftype ^:private game-result [r]
-         GameResult
-         (isDraw [this]
-           (match this Draw true :else false))
-         (isWin [this] (match this Draw false :else true))
-         (strictFold [this p1 p2 dr] p1)
-         (toString [this]
-           (match this
-                  Draw "Draw"
-                  Player1Wins "Player 1 Wins"
-                  Player2Wins "Player 2 Wins"))
-         (winner [this]
-           (match this Player1Wins Player1 Player2Wins Player2 :else nil)))
+(t/ann-datatype GameResult [r :- char])
+(deftype GameResult [r]
+  IGameResult
+  (isDraw [this]
+    (match this Draw true :else false))
+  (isWin [this] (match this Draw false :else true))
+  (strictFold [this p1 p2 dr] p1)
+  (toString [this]
+    (match this
+           Draw "Draw"
+           Player1Wins "Player 1 Wins"
+           Player2Wins "Player 2 Wins"))
+  (winner [this]
+    (match this Player1Wins Player1 Player2Wins Player2 :else nil)))
 
-(def Draw (->game-result \D))
-(def Player1Wins (->game-result \1))
-(def Player2Wins (->game-result \2))
-
-(t/ann valueOf [String -> GameResult])
+(t/ann valueOf [String -> IGameResult])
 (defn valueOf [name]
   (match name
          "Draw" Draw
@@ -49,8 +45,12 @@
 
 (def values [Draw Player1Wins Player2Wins])
 
-(t/ann win [Player -> GameResult])
+(t/ann win [Player -> IGameResult])
 (defn win [p]
   (match p
          Player1 Player1Wins
          Player2 Player2Wins))
+
+(def Draw (->GameResult \D))
+(def Player1Wins (->GameResult \1))
+(def Player2Wins (->GameResult \2))
