@@ -11,19 +11,38 @@
 
 (t/ann isEmpty [t/Any -> boolean])
 (defmulti isEmpty type)
-(defmethod isEmpty :default [_] (throw (Exception. "abstract")))
+(defmethod isEmpty :default [board] (throw (Exception. "abstract")))
+
 (t/ann nmoves [t/Any -> t/AnyInteger])
 (defmulti nmoves type)
-(defmethod nmoves :default [_] (throw (Exception. "abstract")))
+(defmethod nmoves :default [board] (throw (Exception. "abstract")))
+
 (t/ann occupiedPositions [t/Any -> (t/Coll Position)])
 (defmulti occupiedPositions type)
-(defmethod occupiedPositions :default [_] (throw (Exception. "abstract")))
+(defmethod occupiedPositions :default [board] (throw (Exception. "abstract")))
+
 (t/ann playerAt [t/Any Position -> (t/Option Player)])
 (defmulti playerAt (t/fn [x :- t/Any y :- Position] (type x)))
-(defmethod playerAt :default [_ _] (throw (Exception. "abstract")))
+(defmethod playerAt :default [board pos] (throw (Exception. "abstract")))
+
 (t/ann whoseTurn [t/Any -> Player])
 (defmulti whoseTurn type)
-(defmethod whoseTurn :default [_] (throw (Exception. "abstract")))
+(defmethod whoseTurn :default [board] (throw (Exception. "abstract")))
+
+(t/ann isOccupied [t/Any Position -> boolean])
+(defmulti isOccupied (t/fn [x :- t/Any y :- Position] (type x)))
+(defmethod isOccupied :default [brd pos]
+  (not= nil (playerAt brd pos)))
+
+(t/ann isNotOccupied [t/Any Position -> boolean])
+(defmulti isNotOccupied (t/fn [x :- t/Any y :- Position] (type x)))
+(defmethod isNotOccupied :default [brd pos]
+  (= nil (playerAt brd pos)))
+
+(t/ann playerAtOr [t/Any Position (P1 Player) -> Player])
+(defmulti playerAtOr (t/fn [b :- t/Any x :- Position or :- (P1 Player)] (type x)))
+(defmethod playerAtOr :defalut [brd pos or]
+  (if-let [plr (playerAt brd pos)] plr (_1 or)))
 
 ;; (t/defprotocol IBoardLike
 ;;   "A IBoardLike thing"
