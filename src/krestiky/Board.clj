@@ -1,6 +1,6 @@
 (ns krestiky.Board
   (:require [krestiky.BoardLike :as BL]
-            [krestiky.Position :refer [Position toInt] :as Pos]
+            [krestiky.Position :refer [Position to-int] :as Pos]
             [krestiky.Player :refer [Player alternate]]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]])
@@ -9,29 +9,59 @@
 (t/defalias TakenBack t/Any)
 (t/defalias MoveResult t/Any)
 
-(defmethod BL/isEmpty (type "") [_] false)
+(t/ann-record board-type
+              [next-move :- Player
+               pos-map :- (APersistentMap t/AnyInteger Player)
+               n-moves :- t/AnyInteger
+               before :- (t/Option board-type)])
+(defrecord board-type [next-move pos-map n-moves before])
 
-;; (t/defprotocol Board
-;;   "Implementation specific methods"
-;;   (takeBack [this :- Board] :- TakenBack)
-;;   (moveTo [this :- Board pos :- Position] :- MoveResult))
+(defmethod BL/empty-board? board-type [board] false)
 
+(defmethod BL/nmoves board-type [{:keys [n-moves]}] n-moves)
+
+(defmethod BL/occupied board-type [{:keys [pos-map]}]
+  (t/ann-form pos-map (APersistentMap t/AnyInteger Player))
+  (map (t/fn [pos :- t/AnyInteger] :- Position (Pos/from-int pos))
+       (keys pos-map)))
+
+(defmethod BL/player-at board-type [{:keys [pos-map]} pos]
+          (->> pos Pos/to-int (get pos-map)))
+
+(defmethod BL/whose-turn board-type [{:keys [next-move]}] next-move)
+
+(t/defprotocol Board
+  "Implementation specific methods"
+  (take-back [this :- Board] :- TakenBack)
+  (move-to [this :- Board pos :- Position] :- MoveResult)
+  (to-string [this :- Board] :- String))
+
+(extend-type board-type
+  Board
+  (take-back [board] (throw (Exception. "abstract")))
+  (move-to [board pos]
+    (t/ann-form board Board)
+    (t/ann-form board board-type)
+    (t/ann-form pos Position)
+    (throw (Exception. "abstract")))
+  (to-string [board] (BL/to-string board BL/simple-chars)))
+  
 ;; (t/ann-datatype
-;;  board-type [nextMove :- Player
-;;              posMap :- (APersistentMap t/AnyInteger Player)
-;;              nMoves :- t/AnyInteger
+;;  board-type [next-move :- Player
+;;              pos-map :- (APersistentMap t/AnyInteger Player)
+;;              n-moves :- t/AnyInteger
 ;;              before :- (t/Option board-type)])
-;; (deftype board-type [nextMove posMap nMoves before]
+;; (deftype board-type [next-move pos-map n-moves before]
 ;;   BoardLike
-;;   (isEmpty [this] false)
-;;   (nmoves [this] nMoves)
-;;   (occupiedPositions [this]
-;;     (map (t/fn [pos :- t/AnyInteger] :- Position (Pos/fromInt pos))
-;;          (keys posMap)))
-;;   (playerAt [this pos]
-;;     (get posMap (Pos/toInt pos)))
-;;   (whoseTurn [this] nextMove)
-;;   (toString [this] "")
+;;   (empty-board? [this] false)
+;;   (nmoves [this] n-moves)
+;;   (occupied [this]
+;;     (map (t/fn [pos :- t/AnyInteger] :- Position (Pos/from-int pos))
+;;          (keys pos-map)))
+;;   (player-at [this pos]
+;;     (get pos-map (Pos/to-int pos)))
+;;   (whose-turn [this] next-move)
+;;   (to-string [this] "")
 ;;   Board
-;;   (takeBack [this] nil)
-;;   (moveTo [this pos] nil))
+;;   (take-back [this] nil)
+;;   (move-to [this pos] nil))

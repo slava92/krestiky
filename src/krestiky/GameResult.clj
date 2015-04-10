@@ -1,17 +1,17 @@
 (ns krestiky.GameResult
   (:require [krestiky.Player :refer [Player Player1 Player2]]
             [clojure.core.match :refer [match]]
-            [clojure.core.typed :as t]))
+            [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
 (t/defprotocol
     IGameResult
   "Game Result"
-  (isDraw [this :- IGameResult] :- boolean)
-  (isWin [this :- IGameResult] :- boolean)
-  ([x] strictFold [this  :- IGameResult
+  (draw? [this :- IGameResult] :- boolean)
+  (win? [this :- IGameResult] :- boolean)
+  ([x] strict-fold [this  :- IGameResult
                    player1Wins :- x player2Wins :- x draw :- x] :- x)
-  (toString [this :- IGameResult] :- String)
+  (to-string [this :- IGameResult] :- String)
   (winner [this :- IGameResult] :- (t/Option Player)))
 
 (t/ann Draw IGameResult)
@@ -24,11 +24,11 @@
 (t/ann-datatype GameResult [r :- char])
 (deftype GameResult [r]
   IGameResult
-  (isDraw [this]
+  (draw? [this]
     (match this Draw true :else false))
-  (isWin [this] (match this Draw false :else true))
-  (strictFold [this p1 p2 dr] p1)
-  (toString [this]
+  (win? [this] (match this Draw false :else true))
+  (strict-fold [this p1 p2 dr] p1)
+  (to-string [this]
     (match this
            Draw "Draw"
            Player1Wins "Player 1 Wins"
@@ -36,13 +36,14 @@
   (winner [this]
     (match this Player1Wins Player1 Player2Wins Player2 :else nil)))
 
-(t/ann valueOf [String -> IGameResult])
-(defn valueOf [name]
+(t/ann value-of [String -> IGameResult])
+(defn value-of [name]
   (match name
          "Draw" Draw
          "Player 1 Wins" Player1Wins
          "Player 2 Wins" Player2Wins))
 
+(t/ann values (t/Coll IGameResult))
 (def values [Draw Player1Wins Player2Wins])
 
 (t/ann win [Player -> IGameResult])
