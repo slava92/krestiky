@@ -21,8 +21,8 @@
 (t/ann Player2Wins IGameResult)
 (declare Player2Wins)
 
-(t/ann-datatype GameResult [r :- char])
-(deftype GameResult [r]
+(t/ann-record GameResult [r :- char])
+(defrecord GameResult [r]
   IGameResult
   (draw? [this]
     (match this Draw true :else false))

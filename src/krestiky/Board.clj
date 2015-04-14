@@ -45,23 +45,3 @@
     (t/ann-form pos Position)
     (throw (Exception. "abstract")))
   (to-string [board] (BL/to-string board BL/simple-chars)))
-  
-;; (t/ann-datatype
-;;  board-type [next-move :- Player
-;;              pos-map :- (APersistentMap t/AnyInteger Player)
-;;              n-moves :- t/AnyInteger
-;;              before :- (t/Option board-type)])
-;; (deftype board-type [next-move pos-map n-moves before]
-;;   BoardLike
-;;   (empty-board? [this] false)
-;;   (nmoves [this] n-moves)
-;;   (occupied [this]
-;;     (map (t/fn [pos :- t/AnyInteger] :- Position (Pos/from-int pos))
-;;          (keys pos-map)))
-;;   (player-at [this pos]
-;;     (get pos-map (Pos/to-int pos)))
-;;   (whose-turn [this] next-move)
-;;   (to-string [this] "")
-;;   Board
-;;   (take-back [this] nil)
-;;   (move-to [this pos] nil))

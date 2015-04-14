@@ -35,17 +35,5 @@
 
 (def empty-board (->empty-board-type))
 
-;; (deftype EmptyBoardT []
-;;   BoardLike
-;;   (empty-board? [this] true)
-;;   (nmoves [this] 0)
-;;   (occupied [this] [])
-;;   (player-at [this pos] nil)
-;;   (whose-turn [this] Player1)
-;;   EmptyBoard
-;;   (moveTo [this pos] (B/->BoardT (alternate (BL/whose-turn this))
-;;                                  {(to-int pos) (BL/whose-turn this)}
-;;                                  (+ (BL/nmoves this) 1)
-;;                                  nil)))
-  
-;; (t/defn empty-board-type [] :- EmptyBoardT (->EmptyBoardT))
+;; debugging: ebs is a string representaion of an empty board
+(def ebs (BL/to-string empty-board BL/simple-chars))

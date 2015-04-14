@@ -19,8 +19,8 @@
 (t/ann Player2 Player)
 (declare Player2)
 
-(t/ann-datatype player [c :- char s :- String])
-(deftype ^:private player [c s]
+(t/ann-record player [c :- char s :- String])
+(defrecord ^:private player [c s]
   Player
   (alternate [this] (if (= this Player1) Player2 Player1))
   (to-symbol [_] c)

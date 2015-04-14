@@ -29,8 +29,8 @@
   (to-int [this :- Position] :- t/AnyInteger
          "Convert Position to integer"))
 
-(t/ann-datatype position [c :- char i :- t/AnyInteger])
-(deftype ^:private position [c i]
+(t/ann-record position [c :- char i :- t/AnyInteger])
+(defrecord ^:private position [c i]
   Position
   (to-char [_] c)
   (to-int [_] i))
