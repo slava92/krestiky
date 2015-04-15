@@ -1,7 +1,7 @@
 (ns krestiky.FinishedBoard
   (:require [krestiky.BoardLike :as BL]
             [krestiky.Board :as B]
-            [krestiky.GameResult :refer [IGameResult]]
+            [krestiky.GameResult :refer [GameResult]]
             [krestiky.Position :refer [Position to-int] :as Pos]
             [krestiky.Player :refer [Player Player1 alternate]]
             [clojure.core.match :refer [match]]
@@ -30,7 +30,7 @@
 (t/defprotocol FinishedBoard
   "Implementation specific methods"
   (take-back [board :- FinishedBoard] :- B/Board)
-  (result [board :- FinishedBoard] :- IGameResult))
+  (result [board :- FinishedBoard] :- GameResult))
 
 (extend-type finished-board-type
   FinishedBoard
