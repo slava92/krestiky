@@ -2,12 +2,12 @@
   (:require [krestiky.BoardLike :as BL]
             [krestiky.Position :refer [Position to-int] :as Pos]
             [krestiky.Player :refer [Player alternate]]
+            [krestiky.MoveResult :as MR]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]])
   (:import (clojure.lang APersistentMap)))
 (set! *warn-on-reflection* true)
 (t/defalias TakenBack t/Any)
-(t/defalias MoveResult t/Any)
 
 (t/ann-record board-type
               [next-move :- Player
@@ -29,12 +29,6 @@
           (->> pos Pos/to-int (get pos-map)))
 
 (defmethod BL/whose-turn board-type [{:keys [next-move]}] next-move)
-
-(t/defprotocol Board
-  "Implementation specific methods"
-  (take-back [this :- Board] :- TakenBack)
-  (move-to [this :- Board pos :- Position] :- MoveResult)
-  (to-string [this :- Board] :- String))
 
 (extend-type board-type
   Board

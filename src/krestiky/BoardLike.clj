@@ -5,9 +5,6 @@
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/ann-record [x] P1 [_1 :- x])
-(defrecord P1 [_1])
-
 (t/ann-record board-like [])
 (defrecord board-like [])
 

@@ -4,10 +4,10 @@
             [krestiky.GameResult :refer [GameResult]]
             [krestiky.Position :refer [Position to-int] :as Pos]
             [krestiky.Player :refer [Player Player1 alternate]]
+            [krestiky.MoveResult :refer [MoveResult]]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
-(t/defalias MoveResult t/Any)
 
 (t/ann-record finished-board-type [board :- B/Board])
 (defrecord finished-board-type [board])
@@ -26,11 +26,6 @@
 
 (defmethod BL/whose-turn finished-board-type [board]
   (BL/whose-turn (:board board)))
-
-(t/defprotocol FinishedBoard
-  "Implementation specific methods"
-  (take-back [board :- FinishedBoard] :- B/Board)
-  (result [board :- FinishedBoard] :- GameResult))
 
 (extend-type finished-board-type
   FinishedBoard

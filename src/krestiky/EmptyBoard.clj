@@ -21,10 +21,6 @@
 
 (defmethod BL/whose-turn empty-board-type [_] Player1)
 
-(t/defprotocol EmptyBoard
-  "Implementation specific methods"
-  (move-to [board :- EmptyBoard pos :- Position] :- B/Board))
-
 (extend-type empty-board-type
   EmptyBoard
   (move-to [board pos]

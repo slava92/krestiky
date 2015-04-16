@@ -3,17 +3,6 @@
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/defprotocol Player
-  "A Player"
-  (alternate [this :- Player] :- Player
-             "Returns player that has the next move.")
-  (to-symbol [this :- Player] :- char
-            "Returns symbol representing the player.")
-  (to-string [this :- Player] :- String
-            "Returns string representing the player.")
-  (value-of [this :- Player name :- String] :- Player
-           "Returns player based on its name"))
-
 (t/ann Player1 Player)
 (declare Player1)
 (t/ann Player2 Player)

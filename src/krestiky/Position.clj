@@ -1,5 +1,6 @@
 (ns krestiky.Position
-  (:require [clojure.core.match :refer [match]]
+  (:require [krestiky.Types :refer :all]
+            [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -21,13 +22,6 @@
 (declare S)
 (t/ann SE Position)
 (declare SE)
-
-(t/defprotocol Position
-  "Position on Board"
-  (to-char [this :- Position] :- char
-           "Convert Position to character")
-  (to-int [this :- Position] :- t/AnyInteger
-         "Convert Position to integer"))
 
 (t/ann-record position [c :- char i :- t/AnyInteger])
 (defrecord ^:private position [c i]
@@ -58,7 +52,7 @@
          1 NW 2 N 3 NE
          4 W  5 C 6 E
          7 SW 8 S 9 SE))
-(t/defn value-of [s :- String] :- Position
+(t/defn from-string [s :- String] :- Position
   (match s
          "NW" NW "N" N "NE" NE
          "W"  W  "C" C "E"  E

@@ -4,16 +4,6 @@
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/defprotocol
-    GameResult
-  "Game Result"
-  (draw? [this :- GameResult] :- boolean)
-  (win? [this :- GameResult] :- boolean)
-  ([x] strict-fold [this  :- GameResult
-                   player1Wins :- x player2Wins :- x draw :- x] :- x)
-  (to-string [this :- GameResult] :- String)
-  (winner [this :- GameResult] :- (t/Option Player)))
-
 (t/ann Draw GameResult)
 (declare Draw)
 (t/ann Player1Wins GameResult)
