@@ -10,7 +10,7 @@
 (t/defprotocol
     MoveResult
   "Move Result"
-  (keep_playing [move :- MoveResult] :- MoveResult)
+  (keep-playing [move :- MoveResult] :- (t/Option B/Board))
   ([a] keep-playing-or [move :- MoveResult
                         els :- (P1 a)
                         fb :- (t/IFn [B/Board -> a])] :- a)
@@ -30,16 +30,18 @@
                      -> x])))
 
 (t/ann-record move-result [mrf :- move-result-fold])
-(defrecord
-    ^:private move-result [mrf]
+(defrecord ^:private move-result [mrf])
+
+(extend-type move-result
     MoveResult
-    (keep_playing [move board]
+    (keep-playing [move]
       (let [eb nil
-            kpf (t/fn [a :- Board] :- Board a)
-            gof (t/fn [a :- FinishedBoard] :- (t/Option Board) a)]
-        (mrf eb kpf gof)))
-        ;; (throw (Exception. "TBI"))))
-    (keep-playing-or [move els board] (throw (Exception. "TBI")))
+            kpf (t/fn [a :- B/Board] :- (t/Option B/Board) a)
+            gof (t/fn [a :- FB/FinishedBoard] :- (t/Option B/Board) eb)]
+        ((:mrf move) (P1. eb) kpf gof)))
+    (keep-playing-or [move els fb]
+      (let [fgo (t/fn [a :- FB/FinishedBoard]
+      (throw (Exception. "TBI")))
     (try-move [move pos] (throw (Exception. "TBI"))))
 
 
