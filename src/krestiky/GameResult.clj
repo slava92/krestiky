@@ -1,5 +1,6 @@
 (ns krestiky.GameResult
-  (:require [krestiky.Player :refer [Player Player1 Player2]]
+  (:require [krestiky.Types :refer :all]
+            [krestiky.Player :refer [Player1 Player2]]
             [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
@@ -18,13 +19,14 @@
     (match this Draw true :else false))
   (win? [this] (match this Draw false :else true))
   (strict-fold [this p1 p2 dr] p1)
+  (winner [this]
+    (match this Player1Wins Player1 Player2Wins Player2 :else nil))
+  Show
   (to-string [this]
     (match this
            Draw "Draw"
            Player1Wins "Player 1 Wins"
-           Player2Wins "Player 2 Wins"))
-  (winner [this]
-    (match this Player1Wins Player1 Player2Wins Player2 :else nil)))
+           Player2Wins "Player 2 Wins")))
 
 (t/ann value-of [String -> GameResult])
 (defn value-of [name]

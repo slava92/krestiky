@@ -38,4 +38,5 @@
     (t/ann-form board board-type)
     (t/ann-form pos Position)
     (throw (Exception. "abstract")))
-  (to-string [board] (BL/to-string board BL/simple-chars)))
+  Show
+  (to-string [board] (BL/as-string board BL/simple-chars)))

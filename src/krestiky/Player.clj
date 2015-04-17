@@ -1,5 +1,6 @@
 (ns krestiky.Player
-  (:require [clojure.core.match :refer [match]]
+  (:require [krestiky.Types :refer :all]
+            [clojure.core.match :refer [match]]
             [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -13,11 +14,13 @@
   Player
   (alternate [this] (if (= this Player1) Player2 Player1))
   (to-symbol [_] c)
-  (to-string [_] s)
-  (value-of [_ name]
-    (match name
-           "Alice" Player1
-           "Bob" Player2)))
+  Show
+  (to-string [_] s))
+
+(t/defn value-of [name :- String] :- Player
+  (match name
+         "Alice" Player1
+         "Bob" Player2))
 
 (def Player1 (->player \O "Alice"))
 (def Player2 (->player \X "Bob"))

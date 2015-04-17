@@ -27,7 +27,13 @@
 (defrecord ^:private position [c i]
   Position
   (to-char [_] c)
-  (to-int [_] i))
+  (to-int [_] i)
+  Show
+  (to-string [p]
+    (match p
+           NW "NW" N "N" NE "NE"
+           W  "W"  C "C" E  "E" 
+           SW "SW" S "S" SE "SE")))
 
 (def NW (->position \1 1))
 (def N  (->position \2 2))
@@ -42,6 +48,12 @@
 (t/ann values (t/Coll Position))
 (def values [NE N NW W C E SW S SE])
 
+(t/defn value-of [s :- String] :- Position
+  (match s
+         "NW" NW "N" N "NE" NE
+         "W"  W  "C" C "E"  E
+         "SW" SW "S" S "SE" SE))
+
 (t/defn from-char [c :- char] :- Position
   (match c
          \1 NW \2 N \3 NE
@@ -52,8 +64,3 @@
          1 NW 2 N 3 NE
          4 W  5 C 6 E
          7 SW 8 S 9 SE))
-(t/defn from-string [s :- String] :- Position
-  (match s
-         "NW" NW "N" N "NE" NE
-         "W"  W  "C" C "E"  E
-         "SW" SW "S" S "SE" SE))
