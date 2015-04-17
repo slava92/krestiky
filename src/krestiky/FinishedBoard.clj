@@ -1,16 +1,20 @@
 (ns krestiky.FinishedBoard
-  (:require [krestiky.BoardLike :as BL]
-            [krestiky.Board :as B]
-            [krestiky.GameResult :refer [GameResult]]
-            [krestiky.Position :refer [Position to-int] :as Pos]
-            [krestiky.Player :refer [Player Player1 alternate]]
-            [krestiky.MoveResult :refer [MoveResult]]
-            [clojure.core.match :refer [match]]
-            [clojure.core.typed :as t :refer [check-ns]]))
+  (:require [krestiky.Types :refer :all]
+            [krestiky.BoardLike :as BL])
+  (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/ann-record finished-board-type [board :- B/Board])
-(defrecord finished-board-type [board])
+(t/ann-record finished-board-type [board :- Board])
+(defrecord finished-board-type [board]
+  Started
+  (take-back [board] (:board board))
+  FinishedBoard
+  (result [board]
+    ;; if (board.gotWinner())
+    ;;     return GameResult.win(board.whoseNotTurn());
+    ;; else
+    ;;     return GameResult.Draw;
+    (throw (Exception. "TBI"))))
 
 (defmethod BL/empty-board? finished-board-type [board]
   (BL/empty-board? (:board board)))
@@ -26,8 +30,3 @@
 
 (defmethod BL/whose-turn finished-board-type [board]
   (BL/whose-turn (:board board)))
-
-(extend-type finished-board-type
-  FinishedBoard
-  (take-back [board] (:board board))
-  (result [board] (throw (Exception. "TBI"))))

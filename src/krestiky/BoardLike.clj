@@ -1,9 +1,9 @@
 (ns krestiky.BoardLike
   (:require [krestiky.Types :refer :all]
             [krestiky.Position :as Pos]
-            [krestiky.Player :as Plr]
-            [clojure.core.match :refer [match]]
-            [clojure.core.typed :as t :refer [check-ns]]))
+            [krestiky.Player :as Plr])
+  (:import [krestiky.Types P1])
+  (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
 (t/ann-record board-like [])
@@ -53,7 +53,7 @@
 (t/ann as-string [t/Any board-fold-fn -> String])
 (defmulti as-string (t/fn [board :- t/Any af :- board-fold-fn] (clazz board)))
 (defmethod as-string :default [board af]
-  (->> Pos/values (sort-by Pos/to-int)
+  (->> Pos/values (sort-by to-int)
        (map (t/fn [p :- Position] :- char (af (player-at board p) p)))
        (partition-all 3)
        (map (t/fn [cs :- (t/Coll char)] (interpose \space cs)))
@@ -63,4 +63,4 @@
 
 (t/ann simple-chars board-fold-fn)
 (defn simple-chars [p n]
-  (if (nil? p) \_ (Plr/to-symbol p)))
+  (if (nil? p) \_ (to-symbol p)))

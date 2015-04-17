@@ -58,4 +58,3 @@
 (t/defprotocol FinishedBoard
   "Implementation specific methods"
   (result [board :- FinishedBoard] :- GameResult))
-

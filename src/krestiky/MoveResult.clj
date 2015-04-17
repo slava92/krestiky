@@ -1,49 +1,39 @@
 (ns krestiky.MoveResult
-  (:require [krestiky.BoardLike :as BL]
-            [krestiky.Board :as B]
-            [krestiky.FinishedBoard :as FB]
-            [krestiky.Position :refer [Position to-int] :as Pos])
-  (:import [krestiky.BoardLike P1])
+  (:require [krestiky.Types :refer :all])
+  (:import [krestiky.Types P1])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-;; abstract <X> X fold(fj.P1<X> positionAlreadyOccupied,
-;;                fj.F<Board,X> keepPlaying,
-;;                fj.F<Board.FinishedBoard,X> gameOver) 
-;; ([x] fold [move :- MoveResult
-;;            pao :- (P1 x)
-;;            keepp :- (t/IFn [B/Board -> x])
-;;            gmover :- (t/IFn [FB/FinishedBoard -> x])] :- x)
 (t/defalias move-result-fold
-  (t/All [x] (t/IFn [(P1 x)
-                     (t/IFn [B/Board -> x])
-                     (t/IFn [FB/FinishedBoard -> x])
+  (t/All [x] (t/IFn [(P1 x) ;; position already occupied
+                     (t/IFn [Board -> x]) ;; keep playing
+                     (t/IFn [FinishedBoard -> x]) ;; game over
                      -> x])))
 
 (t/ann-record move-result [mrf :- move-result-fold])
-(defrecord ^:private move-result [mrf])
-
-(extend-type move-result
+(defrecord ^:private move-result [mrf]
     MoveResult
     (keep-playing [move]
       (let [eb nil
-            kpf (t/fn [a :- B/Board] :- (t/Option B/Board) a)
-            gof (t/fn [_ :- FB/FinishedBoard] :- (t/Option B/Board) eb)]
+            kpf (t/fn [a :- Board] :- (t/Option Board) a)
+            gof (t/fn [_ :- FinishedBoard] :- (t/Option Board) eb)]
         ((:mrf move) (P1. eb) kpf gof)))
     (keep-playing-or [move els fb]
-      (let [fgo (t/fn [_ :- FB/FinishedBoard] (:_1 els))]
+      (let [fgo (t/fn [_ :- FinishedBoard] (:_1 els))]
         ((:mrf move) els fb fgo)))
     (try-move [self pos]
-      (let [go (t/fn [a :- FB/FinishedBoard] self)
-            kp (t/fn [b :- B/Board] (B/move-to b pos))]
+      (let [go (t/fn [a :- FinishedBoard] self)
+            kp (t/fn [b :- Board] (move-to b pos))]
         ((:mrf self) (P1. self) kp go))))
-        ;; (throw (Exception. "TBI")))))
 
+(t/defn mk-game-over [b :- FinishedBoard] :- MoveResult
+  (let [gof (t/ann-form (fn [_ _ gameover] (gameover b)) move-result-fold)]
+    (->move-result gof)))
 
-;; fj.data.Option<Board>	keepPlaying() 
-;; <A> A	keepPlayingOr(fj.P1<A> els, fj.F<Board,A> board) 
-;; MoveResult	tryMove(Position p)
+(t/defn mk-keep-playing [b :- Board] :- MoveResult
+  (let [gof (t/ann-form (fn [_ keepplay _] (keepplay b)) move-result-fold)]
+    (->move-result gof)))
 
-;; static MoveResult	gameOver(Board.FinishedBoard b) 
-;; static MoveResult	keepPlaying(Board b) 
-;; static MoveResult	positionAlreadyOccupied() 
+(t/defn mk-already-occupied [] :- MoveResult
+  (let [gof (t/ann-form (fn [po _ _] (:_1 po)) move-result-fold)]
+    (->move-result gof)))
