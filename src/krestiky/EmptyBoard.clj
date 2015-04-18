@@ -31,4 +31,4 @@
 (def empty-board (->empty-board-type))
 
 ;; debugging: ebs is a string representaion of an empty board
-;; (def ebs (BL/as-string empty-board BL/simple-chars))
+(def ebs (BL/as-string empty-board BL/simple-chars))

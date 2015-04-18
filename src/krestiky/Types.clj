@@ -46,7 +46,8 @@
 
 (t/defprotocol Board
   "There is at least one move available"
-  (move-to [this :- Board pos :- Position] :- MoveResult))
+  (move-to [this :- Board pos :- Position] :- MoveResult)
+  (got-winner [this :- Board] :- boolean))
 
 (t/defprotocol Empty
   "Empty starting board")

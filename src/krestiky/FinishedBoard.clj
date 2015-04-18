@@ -1,6 +1,7 @@
 (ns krestiky.FinishedBoard
   (:require [krestiky.Types :refer :all]
-            [krestiky.BoardLike :as BL])
+            [krestiky.BoardLike :as BL]
+            [krestiky.GameResult :as GR])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -10,11 +11,9 @@
   (take-back [board] (:board board))
   FinishedBoard
   (result [board]
-    ;; if (board.gotWinner())
-    ;;     return GameResult.win(board.whoseNotTurn());
-    ;; else
-    ;;     return GameResult.Draw;
-    (throw (Exception. "TBI"))))
+    (if (got-winner (:board board))
+      (GR/win (BL/whose-not-turn board))
+      GR/Draw)))
 
 (defmethod BL/empty-board? finished-board-type [board]
   (BL/empty-board? (:board board)))
