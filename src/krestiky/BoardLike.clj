@@ -12,23 +12,23 @@
 (t/defn clazz [x :- t/Any] :- (t/Option java.lang.Class) (class x))
 (t/ann empty-board? [t/Any -> boolean])
 (defmulti empty-board? clazz)
-(defmethod empty-board? :default [board] (throw (Exception. "abstract")))
+(defmethod empty-board? :default [board] (throw (Exception. "abstract empty-board?")))
 
 (t/ann nmoves [t/Any -> t/AnyInteger])
 (defmulti nmoves clazz)
-(defmethod nmoves :default [board] (throw (Exception. "abstract")))
+(defmethod nmoves :default [board] (throw (Exception. "abstract nmoves")))
 
 (t/ann occupied [t/Any -> (t/Coll Position)])
 (defmulti occupied clazz)
-(defmethod occupied :default [board] (throw (Exception. "abstract")))
+(defmethod occupied :default [board] (throw (Exception. "abstract occupied")))
 
 (t/ann player-at [t/Any Position -> (t/Option Player)])
 (defmulti player-at (t/fn [x :- t/Any y :- Position] (clazz x)))
-(defmethod player-at :default [board pos] (throw (Exception. "abstract")))
+(defmethod player-at :default [board pos] (throw (Exception. "abstract player-at")))
 
 (t/ann whose-turn [t/Any -> Player])
 (defmulti whose-turn clazz)
-(defmethod whose-turn :default [board] (throw (Exception. "abstract")))
+(defmethod whose-turn :default [board] (throw (Exception. "abstract whose-turn")))
 
 (t/ann whose-not-turn [t/Any -> Player])
 (defmulti whose-not-turn clazz)

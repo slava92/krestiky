@@ -3,7 +3,8 @@
             [krestiky.BoardLike :as BL]
             [krestiky.FinishedBoard :as FB]
             [krestiky.MoveResult :as MR]
-            [krestiky.Position :as Pos])
+            [krestiky.Position :as Pos]
+            [krestiky.TakenBack :as TB])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -33,11 +34,10 @@
 (t/defn game-over? [board :- Board] :- boolean
   (or (is-draw board) (got-winner board)))
 
-(t/ann-record board-type
-              [next-move :- Player
-               pos-map :- (t/Map t/AnyInteger Player)
-               n-moves :- t/AnyInteger
-               before :- (t/Option board-type)])
+(t/ann-record board-type [next-move :- Player
+                          pos-map :- (t/Map t/AnyInteger Player)
+                          n-moves :- t/AnyInteger
+                          before :- (t/Option board-type)])
 (defrecord board-type [next-move pos-map n-moves before]
   Board
   (move-to [board pos]
@@ -63,7 +63,8 @@
           outcomes (some true? (map full-row? winners))]
       (not= nil outcomes)))
   Started
-  (take-back [board] (throw (Exception. "TBI")))
+  (take-back [board]
+    (if (nil? board) (TB/mk-is-empty) (TB/mk-is-board board)))
   Show
   (to-string [board] (BL/as-string board BL/simple-chars)))
 

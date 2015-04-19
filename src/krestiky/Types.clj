@@ -2,8 +2,6 @@
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-;; (t/defalias TakenBack t/Any)
-
 (t/ann-record [x] P1 [_1 :- x])
 (defrecord P1 [_1])
 
@@ -42,7 +40,10 @@
   ([a] keep-playing-or [move :- MoveResult
                         els :- (P1 a)
                         fb :- (t/IFn [Board -> a])] :- a)
-  (try-move [move :- MoveResult pos :- Position] :- MoveResult))
+  (try-move [move :- MoveResult pos :- Position] :- MoveResult)
+  ([a] mr-fold [move :- MoveResult b :- (P1 a)
+                pkf :- (t/IFn [Board -> a])
+                gof :- (t/IFn [FinishedBoard -> a])]))
 
 (t/defprotocol Board
   "There is at least one move available"
@@ -50,12 +51,18 @@
   (got-winner [this :- Board] :- boolean))
 
 (t/defprotocol Empty
-  "Empty starting board")
+  "Empty starting board"
+  (start-to [this :- Empty pos :- Position] :- Board))
 
 (t/defprotocol Started
   "At least one move has been made"
-  (take-back [board :- Started] :- (t/U Board Empty)))
+  (take-back [board :- Started] :- TakenBack))
   
 (t/defprotocol FinishedBoard
   "Implementation specific methods"
-  (result [board :- FinishedBoard] :- GameResult))
+  (result [board :- FinishedBoard] :- GameResult)
+  (fb-take-back [board :- Started] :- Board))
+
+(t/defprotocol TakenBack
+  ([x] tb-fold [this :- TakenBack
+                is-empty :- (P1 x) is-board :- (t/IFn [Board -> x])] :- x))

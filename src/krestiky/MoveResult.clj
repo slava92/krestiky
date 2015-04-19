@@ -24,7 +24,8 @@
     (try-move [self pos]
       (let [go (t/fn [a :- FinishedBoard] self)
             kp (t/fn [b :- Board] (move-to b pos))]
-        ((:mrf self) (P1. self) kp go))))
+        ((:mrf self) (P1. self) kp go)))
+    (mr-fold [self b kpf gof] (mrf b kpf gof)))
 
 (t/defn mk-game-over [b :- FinishedBoard] :- MoveResult
   (let [gof (t/ann-form (fn [_ _ gameover] (gameover b)) move-result-fold)]

@@ -7,13 +7,12 @@
 
 (t/ann-record finished-board-type [board :- Board])
 (defrecord finished-board-type [board]
-  Started
-  (take-back [board] (:board board))
   FinishedBoard
   (result [board]
     (if (got-winner (:board board))
       (GR/win (BL/whose-not-turn board))
-      GR/Draw)))
+      GR/Draw))
+  (fb-take-back [board] (:board board)))
 
 (defmethod BL/empty-board? finished-board-type [board]
   (BL/empty-board? (:board board)))
