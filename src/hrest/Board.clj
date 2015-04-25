@@ -22,4 +22,4 @@
 (t/ann --> (t/All [from to] [Pos/Position from -> to]))
 (defmulti --> (fn [pos board] (clazz board)))
 (defmethod --> [EmptyBoard] [pos from]
-  (throw (Exception. "TBI")))
+  (->board [[pos Plr/Player1]] {pos Plr/Player1}))
