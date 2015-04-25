@@ -40,23 +40,11 @@
 
 (t/defn draw [] :- GameResult Draw)
 
-;; -- | Returns whether or not player 1 won for the game result.
-;; isPlayer1Wins ::
-;;   GameResult
-;;   -> Bool
-;; isPlayer1Wins =
-;;   playerGameResult True False False
+(t/defn isPlayer1Wins [gr :- GameResult] :- boolean
+  (playerGameResult true false false gr))
 
-;; -- | Returns whether or not player 2 won for the game result.
-;; isPlayer2Wins ::
-;;   GameResult
-;;   -> Bool
-;; isPlayer2Wins =
-;;   playerGameResult False True False
+(t/defn isPlayer2Wins [gr :- GameResult] :- boolean
+  (playerGameResult false true false gr))
 
-;; -- | Returns whether the game result is a draw.
-;; isDraw ::
-;;   GameResult
-;;   -> Bool
-;; isDraw =
-;;   playerGameResult False False True
+(t/defn isDraw [gr :- GameResult] :- boolean
+  (playerGameResult false false true gr))
