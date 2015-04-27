@@ -3,14 +3,6 @@
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/ann Player1 (t/Val ::Player1))
-(def Player1 ::Player1)
-
-(t/ann Player2 (t/Val ::Player2))
-(def Player2 ::Player2)
-
-(t/defalias Player (t/U (t/Val ::Player1) (t/Val ::Player2)))
-
 (t/ann player (t/All [x] (t/IFn [x x Player -> x])))
 (defn player [a b p] (if (= p Player1) a b))
 
