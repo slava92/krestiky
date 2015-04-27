@@ -67,6 +67,8 @@
 (t/defn keywordzz [x :- t/Any] :- (t/U t/Keyword Class nil)
   (if (keyword? x) x (class x)))
 
+(defn abstract [s] (throw (Exception. (format "abstract '%s'" s))))
+
 (t/ann show [t/Any -> String])
 (defmulti show keywordzz)
-(defmethod show :default [x] (throw (Exception. "abstract show")))
+(defmethod show :default [x] (abstract "show"))
