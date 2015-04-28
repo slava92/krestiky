@@ -12,7 +12,7 @@
   (= (count (BL/occupied board))
      (count Pos/values)))
 
-(t/ann winner (t/Coll (t/Coll Position)))
+(t/ann winners (t/Coll (t/Coll Position)))
 (def winners
   [[Pos/NW Pos/N Pos/NE]
    [Pos/W  Pos/C Pos/E]

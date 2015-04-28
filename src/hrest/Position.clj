@@ -12,3 +12,6 @@
 (defmethod show SW [p] "SW")
 (defmethod show W  [p] "W ")
 (defmethod show C  [p] "C ")
+
+(t/ann positions (t/Coll Position))
+(def positions [NW N NE E SE S SW W C])

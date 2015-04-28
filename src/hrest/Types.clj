@@ -11,13 +11,13 @@
 (t/defalias Player (t/U (t/Val ::Player1) (t/Val ::Player2)))
 
 (t/ann NW (t/Val ::NW)) (def NW ::NW)
-(t/ann N  (t/Val ::N))  (def N ::N)
+(t/ann N  (t/Val ::N))  (def N  ::N)
 (t/ann NE (t/Val ::NE)) (def NE ::NE)
-(t/ann W  (t/Val ::W))  (def W ::W)
-(t/ann C  (t/Val ::C))  (def C ::C)
-(t/ann E  (t/Val ::E))  (def E ::E)
+(t/ann W  (t/Val ::W))  (def W  ::W)
+(t/ann C  (t/Val ::C))  (def C  ::C)
+(t/ann E  (t/Val ::E))  (def E  ::E)
 (t/ann SW (t/Val ::SW)) (def SW ::SW)
-(t/ann S  (t/Val ::S))  (def S ::S)
+(t/ann S  (t/Val ::S))  (def S  ::S)
 (t/ann SE (t/Val ::SE)) (def SE ::SE)
 
 (t/defalias Position
@@ -43,9 +43,9 @@
 (t/ann-record EmptyBoard [])
 (defrecord EmptyBoard [])
 
-(t/ann-record Board [moves :- (t/Coll (t/HVec [Position Player]))
-                     poss :- (t/Map Position Player)])
-(defrecord Board [moves poss])
+(t/ann-record Board [moves :- (t/List (t/HVec [Position Player]))
+                     positions :- (t/Map Position Player)])
+(defrecord Board [moves positions])
 
 (t/ann-record FinishedBoard [b :- Board gr :- GameResult])
 (defrecord FinishedBoard [b gr])

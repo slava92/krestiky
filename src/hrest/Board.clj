@@ -1,6 +1,8 @@
 (ns hrest.Board
   (:require [hrest.Types :refer :all]
-            [hrest.BoardLike :as BL])
+            [hrest.BoardLike :as BL]
+            [hrest.GameResult :as GR]
+            [hrest.Position :as Pos])
   (:import [hrest.Types EmptyBoard Board FinishedBoard
             PositionOccupied KeepPlaying GameFinished])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
@@ -13,37 +15,33 @@
 (defmulti --> (fn [pos board] (clazz board)))
 
 (defmethod --> EmptyBoard [pos from]
-  (->KeepPlaying (->Board [[pos Player1]] {pos Player1})))
+  (->KeepPlaying (->Board (list [pos Player1]) {pos Player1})))
 
-(defmethod --> Board [pos {:keys [moves poss] :as bd}]
-  (let [w (BL/whoseTurn bd)]
-    (throw (Exception. "TBI"))))
-;; instance Move Board MoveResult where
-;;   p --> bd@(Board q m) =
-;;     let w       = whoseTurn bd
-;;         (j, m') = M.insertLookupWithKey (\_ x _ -> x) p w m
-;;         wins =
-;;           [
-;;             (NW, W , SW)
-;;           , (N , C , S )
-;;           , (NE, E , SE)
-;;           , (NW, N , NE)
-;;           , (W , C , E )
-;;           , (SW, S , SE)
-;;           , (NW, C , SE)
-;;           , (SW, C , NE)
-;;           ]
-;;         allEq (d:e:t) = d == e && allEq (e:t)
-;;         allEq _       = True
-;;         isWin         = any (\(a, b, c) -> any allEq $ mapM (`M.lookup` m') [a, b, c]) wins
-;;         isD           = all (`M.member` m') [minBound ..]
-;;         b'            = Board ((p, w):q) m'
-;;     in maybe (if isWin
-;;               then
-;;                 GameFinished (b' `FinishedBoard` win w)
-;;               else
-;;                 if isD
-;;                 then
-;;                   GameFinished (b' `FinishedBoard` draw)
-;;                 else
-;;                   KeepPlaying b') (const PositionAlreadyOccupied) j
+(t/defalias Positions (t/Map Position Player))
+(defmethod --> Board [pos {:keys [moves positions] :as bd}]
+  (let [w (BL/whoseTurn bd)
+        j (BL/playerAt bd pos)]
+    (if (nil? j)
+      (let [m' (assoc positions pos w)
+            b' (->Board (apply list (cons [pos w] moves)) m')
+            wins [[NW W  SW] [N  C  S ]
+                  [NE E  SE] [NW N  NE]
+                  [W  C  E ] [SW S  SE]
+                  [NW C  SE] [SW C  NE]]
+            pos->plrs
+            (t/fn [diag :- (t/Coll Position)] :- (t/Coll (t/Option Player))
+              (map (t/fn [p :- Position] :- (t/Option Player) (get m' p))
+                   diag))
+            allEq
+            (t/fn [diag :- (t/Coll Position)] :- boolean
+              (let [pls (pos->plrs diag)
+                    same? (distinct pls)]
+                (and (= 1 (count same?)) (not= nil (first same?)))))
+            isWin (not= nil (some true? (map allEq wins)))
+            isDraw (= (count (keys m')) (count Pos/positions))]
+        (cond
+          isWin (->GameFinished (->FinishedBoard b' (GR/win w)))
+          isDraw (->GameFinished (->FinishedBoard b' (GR/draw)))
+          :else (->KeepPlaying b'))
+        (throw (Exception. "TBI")))
+      (->PositionOccupied))))
