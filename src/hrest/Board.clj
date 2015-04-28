@@ -1,5 +1,6 @@
 (ns hrest.Board
-  (:require [hrest.Types :refer :all])
+  (:require [hrest.Types :refer :all]
+            [hrest.BoardLike :as BL])
   (:import [hrest.Types EmptyBoard Board FinishedBoard
             PositionOccupied KeepPlaying GameFinished])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
@@ -15,7 +16,8 @@
   (->KeepPlaying (->Board [[pos Player1]] {pos Player1})))
 
 (defmethod --> Board [pos {:keys [moves poss] :as bd}]
-    (throw (Exception. "TBI")))
+  (let [w (BL/whoseTurn bd)]
+    (throw (Exception. "TBI"))))
 ;; instance Move Board MoveResult where
 ;;   p --> bd@(Board q m) =
 ;;     let w       = whoseTurn bd
