@@ -17,7 +17,6 @@
 (defmethod --> EmptyBoard [pos from]
   (->KeepPlaying (->Board (list [pos Player1]) {pos Player1})))
 
-(t/defalias Positions (t/Map Position Player))
 (defmethod --> Board [pos {:keys [moves positions] :as bd}]
   (let [w (BL/whoseTurn bd)
         j (BL/playerAt bd pos)]
@@ -45,3 +44,10 @@
           :else (->KeepPlaying b'))
         (throw (Exception. "TBI")))
       (->PositionOccupied))))
+
+(defmethod --> PositionOccupied [pos from]
+  (throw (Exception. "TBI")))
+(defmethod --> KeepPlaying [pos from]
+  (throw (Exception. "TBI")))
+(defmethod --> GameFinished [pos from]
+  (throw (Exception. "TBI")))
