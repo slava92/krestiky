@@ -1,19 +1,24 @@
 (ns hrest.GameResult
-  (:require [hrest.Types :refer :all]
-            [hrest.Player :as Plr])
+  (:require [hrest.Types :refer :all])
+  (:import [hrest.Types Player GameResult])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
+(def Draw (->GameResult :Draw Nobody))
+(def WinPlayer1 (->GameResult :Win Player1))
+(def WinPlayer2 (->GameResult :Win Player2))
+
 (t/ann gameResult (t/All [x] [[Player -> x] x GameResult -> x]))
-(defn gameResult [pwin draw [outcome player]]
-  (if (= outcome :hrest.Types.Win) (pwin player) draw))
+(defn gameResult [pwin draw gr]
+  (if (= (:result gr) :Win) (pwin (:player gr)) draw))
 
 (t/ann playerGameResult (t/All [x] [x x x GameResult -> x]))
 (defn playerGameResult [pwin1 pwin2 draw result]
-  (case result
-    [:hrest.Types.Draw] draw
-    [:hrest.Types.Win Player1] pwin1
-    [:hrest.Types.Win Player2] pwin2))
+  (cond
+    (= Draw result) draw
+    (= WinPlayer1 result) pwin1
+    (= WinPlayer2 result)  pwin2
+    :else (throw (Exception. "Error in game design"))))
 
 (t/defn win [p :- Player] :- GameResult
   (if (= p Player1) WinPlayer1 WinPlayer2))

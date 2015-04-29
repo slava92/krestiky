@@ -3,9 +3,10 @@
             [hrest.BoardLike :as BL]
             [hrest.GameResult :as GR]
             [hrest.MoveResult :as MR]
-            [hrest.Position :as Pos])
+            [hrest.Position :as Pos :refer [NW N NE E SE S SW W C]])
   (:import [hrest.Types EmptyBoard Board FinishedBoard
-            PositionOccupied KeepPlaying GameFinished])
+            PositionOccupied KeepPlaying GameFinished]
+           [hrest.Types Position Player])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -64,29 +65,14 @@
 (t/ann showPositionMap [(t/Map Position Player) -> String])
 
 ;; instance Show Board where
-;;   show b@(Board _ m) =
-;;     intercalate " " [showPositionMap m, "[", show (whoseTurn b), "to move ]"]
-(defmethod show Board [b] ;; {:keys [moves positions] :as b}]
-  [" " (showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"]
-  (undefined))
+(defmethod show Board [b]
+  (str " " (showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"))
 
 ;; -- not exported
-;; pos ::
-;;   Ord k =>
-;;   M.Map k Player
-;;   -> String
-;;   -> k
-;;   -> String
-;; pos m e p =
-;;   maybe e (return . toSymbol) (p `M.lookup` m)
+(t/defn pos [m :- (t/Map Position Player) d :- String p :- Position] :- String
+  (let [s (get m p)] (if (nil? s) d (show s))))
 
-(defn showPositionMap [m] (undefined))
-;; showPositionMap ::
-;;   M.Map Position Player
-;;   -> String
-;; showPositionMap m =
-;;   let pos' = pos m "?"
-;;   in concat [ ".=",  pos' NW, "=.=", pos' N , "=.=", pos' NE
-;;             , "=.=", pos' W , "=.=", pos' C , "=.=", pos' E
-;;             , "=.=", pos' SW, "=.=", pos' S , "=.=", pos' SE, "=."
-;;             ]
+(t/defn showPositionMap [m :- (t/Map Position Player)] :- String
+  (str ".=" (pos m "?" NW) "=.=" (pos m "?" N) "=.=" (pos m "?" NE)
+       "=.=" (pos m "?" W) "=.=" (pos m "?" C) "=.=" (pos m "?" E)
+       "=.=" (pos m "?" SW) "=.=" (pos m "?" S) "=.=" (pos m "?" SE) "=."))

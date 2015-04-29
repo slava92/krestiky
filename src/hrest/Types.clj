@@ -2,42 +2,18 @@
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/ann-record Player [p :- t/Kw])
-(defrecord Player [p])
+(t/ann-record Player [name :- String])
+(defrecord Player [name])
 
-(t/ann Player1 Player)
-(def Player1 (->Player :Player1))
+(def Player1 (->Player "Alice"))
+(def Player2 (->Player "Bob"))
+(def Nobody (->Player "Nobody"))
 
-(t/ann Player2 Player)
-(def Player2 (->Player :Player2))
+(t/ann-record Position [pos :- String])
+(defrecord Position [pos])
 
-(t/ann NW (t/Val ::NW)) (def NW ::NW)
-(t/ann N  (t/Val ::N))  (def N  ::N)
-(t/ann NE (t/Val ::NE)) (def NE ::NE)
-(t/ann W  (t/Val ::W))  (def W  ::W)
-(t/ann C  (t/Val ::C))  (def C  ::C)
-(t/ann E  (t/Val ::E))  (def E  ::E)
-(t/ann SW (t/Val ::SW)) (def SW ::SW)
-(t/ann S  (t/Val ::S))  (def S  ::S)
-(t/ann SE (t/Val ::SE)) (def SE ::SE)
-
-(t/defalias Position
-  (t/U (t/Val ::NW) (t/Val ::N) (t/Val ::NE)
-       (t/Val ::W)  (t/Val ::C) (t/Val ::E)
-       (t/Val ::SW) (t/Val ::S) (t/Val ::SE)))
-
-(t/ann Draw (t/HVec [(t/Val ::Draw)]))
-(def Draw [::Draw])
-
-(t/ann WinPlayer1 (t/HVec [(t/Val ::Win) Player]))
-(def WinPlayer1 [::Win Player1])
-
-(t/ann WinPlayer2 (t/HVec [(t/Val ::Win) Player]))
-(def WinPlayer2 [::Win Player2])
-
-(t/defalias GameResult
-  (t/U (t/HVec [(t/Val ::Draw)])
-       (t/HVec [(t/Val ::Win) Player])))
+(t/ann-record GameResult [result :- t/Kw player :- Player])
+(defrecord GameResult [result player])
 
 (t/ann-record EmptyBoard [])
 (defrecord EmptyBoard [])

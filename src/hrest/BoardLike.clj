@@ -1,7 +1,7 @@
 (ns hrest.BoardLike
   (:require [hrest.Types :refer :all]
             [hrest.Player :as Plr])
-  (:import [hrest.Types EmptyBoard Board FinishedBoard])
+  (:import [hrest.Types EmptyBoard Board FinishedBoard Player Position])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 

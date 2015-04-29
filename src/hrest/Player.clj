@@ -19,7 +19,4 @@
 
 (t/defn to-char [p :- Player] (player \X \O p))
 
-(defmethod show Player [p]
-  (case p
-    Player1 "Player 1"
-    Player2 "Player 2"))
+(defmethod show Player [p] (:name p))

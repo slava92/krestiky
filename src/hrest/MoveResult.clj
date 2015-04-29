@@ -30,6 +30,7 @@
 (t/defn keepPlaying [mr :- t/Any] :- (t/Option Board)
   (foldMoveResult nil (t/ann-form identity [Board -> Board])  (constantly nil) mr))
 
+;; instance Show MoveResult where
 (defmethod show PositionOccupied [_] "*Position already occupied*")
 (defmethod show KeepPlaying [mr] (str "{" (show (:board mr)) "}"))
 (defmethod show GameFinished [mr] (str "{{" (show (:board mr)) "}}"))
