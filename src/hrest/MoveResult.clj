@@ -31,5 +31,5 @@
   (foldMoveResult nil (t/ann-form identity [Board -> Board])  (constantly nil) mr))
 
 (defmethod show PositionOccupied [_] "*Position already occupied*")
-(defmethod show KeepPlaying [mr] (show (:board mr)))
-(defmethod show GameFinished [mr] (show (:board mr)))
+(defmethod show KeepPlaying [mr] (str "{" (show (:board mr)) "}"))
+(defmethod show GameFinished [mr] (str "{{" (show (:board mr)) "}}"))
