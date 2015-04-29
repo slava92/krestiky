@@ -2,13 +2,14 @@
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
-(t/ann Player1 (t/Val ::Player1))
-(def Player1 ::Player1)
+(t/ann-record Player [p :- t/Kw])
+(defrecord Player [p])
 
-(t/ann Player2 (t/Val ::Player2))
-(def Player2 ::Player2)
+(t/ann Player1 Player)
+(def Player1 (->Player :Player1))
 
-(t/defalias Player (t/U (t/Val ::Player1) (t/Val ::Player2)))
+(t/ann Player2 Player)
+(def Player2 (->Player :Player2))
 
 (t/ann NW (t/Val ::NW)) (def NW ::NW)
 (t/ann N  (t/Val ::N))  (def N  ::N)
@@ -28,18 +29,16 @@
 (t/ann Draw (t/HVec [(t/Val ::Draw)]))
 (def Draw [::Draw])
 
-(t/ann WinPlayer1 (t/HVec [(t/Val ::Win)
-                           (t/Val ::Player1)]))
+(t/ann WinPlayer1 (t/HVec [(t/Val ::Win) Player]))
 (def WinPlayer1 [::Win Player1])
 
-(t/ann WinPlayer2 (t/HVec [(t/Val ::Win)
-                           (t/Val ::Player2)]))
+(t/ann WinPlayer2 (t/HVec [(t/Val ::Win) Player]))
 (def WinPlayer2 [::Win Player2])
 
 (t/defalias GameResult
   (t/U (t/HVec [(t/Val ::Draw)])
-       (t/HVec [(t/Val ::Win) (t/U (t/Val ::Player1)
-                                   (t/Val ::Player2))])))
+       (t/HVec [(t/Val ::Win) Player])))
+
 (t/ann-record EmptyBoard [])
 (defrecord EmptyBoard [])
 
@@ -61,14 +60,10 @@
 
 (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
 
-(t/defn clazz [x :- t/Any] :- (t/U Class nil)
-  (class x))
-
-(t/defn keywordzz [x :- t/Any] :- (t/U t/Keyword Class nil)
-  (if (keyword? x) x (class x)))
-
 (defn abstract [s] (throw (Exception. (format "abstract '%s'" s))))
+(defn undefined [] (abstract "TBI"))
 
+(t/defn clazz [x :- t/Any] :- (t/U Class nil) (class x))
 (t/ann show [t/Any -> String])
-(defmulti show keywordzz)
+(defmulti show clazz)
 (defmethod show :default [x] (abstract "show"))

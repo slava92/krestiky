@@ -1,5 +1,6 @@
 (ns hrest.Player
   (:require [hrest.Types :refer :all])
+  (:import [hrest.Types Player])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
 
@@ -18,5 +19,7 @@
 
 (t/defn to-char [p :- Player] (player \X \O p))
 
-(defmethod show Player1 [p] "Player 1")
-(defmethod show Player2 [p] "Player 2")
+(defmethod show Player [p]
+  (case p
+    Player1 "Player 1"
+    Player2 "Player 2"))
