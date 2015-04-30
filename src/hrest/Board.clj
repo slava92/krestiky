@@ -3,8 +3,10 @@
             [hrest.BoardLike :as BL]
             [hrest.GameResult :as GR]
             [hrest.MoveResult :as MR]
-            [hrest.Position :as Pos :refer [NW N NE E SE S SW W C]])
-  (:import [hrest.Types EmptyBoard Board FinishedBoard
+            [hrest.Player :as Plr]
+            [hrest.Position :as Pos :refer [NW N NE E SE S SW W C]]
+            [clojure.set])
+  (:import [hrest.Types EmptyBoard Board FinishedBoard GameResult
             PositionOccupied KeepPlaying GameFinished]
            [hrest.Types Position Player])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
@@ -61,12 +63,41 @@
 (defmethod --> GameFinished [pos mr]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
+;; | Return the result of a completed tic-tac-toe game.
+(t/defn getResult [b :- FinishedBoard] :- GameResult (:gr b))
+
 (declare showPositionMap)
 (t/ann showPositionMap [(t/Map Position Player) -> String])
 
 ;; instance Show Board where
 (defmethod show Board [b]
-  (str " " (showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"))
+  (apply str (interpose " " [(showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"])))
+
+;; instance Show FinishedBoard where
+(defmethod show FinishedBoard [fb]
+  (let [summary (GR/gameResult #(show %) "draw" (:gr fb))]
+    (t/ann-form summary String)
+    (apply str (interpose " " [(showPositionMap (:positions (:b fb))) "[[" summary "]]"]))))
+
+;; | Shows a board using ASCII notation and substituting the returned string for each position.
+;;   k ^ The function returning the string to substitute each position.
+(t/defn showEachPosition [k :- [Position -> String]] :- String
+  (let [z ".===.===.===."
+        each [z
+              (str "| " (k NW) " | " (k N ) " | " (k NE) " |")
+              z
+              (str "| " (k W ) " | " (k C ) " | " (k E ) " |")
+              z
+              (str "| " (k SW) " | " (k S ) " | " (k SE) " |")
+              z]]
+    (apply str (interpose "\n" each))))
+
+;;   k ^ The function returning the string to substitute each position.
+(t/defn showEachPositionFlat [k :- [Position -> String]] :- String
+  (str "1 2 3 4 5 6 7 8 9\n" (apply str (interpose " " (map k Pos/positions)))))
+
+(t/defn showLinePosition [k :- [Position -> String]] :- String
+  (str "|" (k NW) (k N) (k NE) "|" (k W) (k C) (k E) "|" (k SW) (k S) (k SE) "|"))
 
 ;; -- not exported
 (t/defn pos [m :- (t/Map Position Player) d :- String p :- Position] :- String
@@ -76,3 +107,55 @@
   (str ".=" (pos m "?" NW) "=.=" (pos m "?" N) "=.=" (pos m "?" NE)
        "=.=" (pos m "?" W) "=.=" (pos m "?" C) "=.=" (pos m "?" E)
        "=.=" (pos m "?" SW) "=.=" (pos m "?" S) "=.=" (pos m "?" SE) "=."))
+
+;; instance BoardLike EmptyBoard where
+(defmethod BL/whoseTurn EmptyBoard [_] Player1)
+(defmethod BL/isEmpty EmptyBoard [_] true)
+(defmethod BL/occupiedPositions EmptyBoard [_] #{})
+(defmethod BL/moves EmptyBoard [_] 0)
+(defmethod BL/isSubboardOf EmptyBoard [_ _] true)
+(defmethod BL/isProperSubboardOf EmptyBoard [_ _] false)
+(defmethod BL/playerAt EmptyBoard [_ _] nil)
+(defmethod BL/showBoard EmptyBoard [_]
+  (showEachPosition (t/fn [p :- Position] :- String (pos {} " " p))))
+(defmethod BL/showLine EmptyBoard [_]
+  (showEachPosition (t/fn [p :- Position] :- String (pos {} "." p))))
+
+;; instance BoardLike Board where
+(defmethod BL/whoseTurn Board [b]
+  (let [last-move (first (:moves b))]
+    (if (nil? last-move) Player1 (Plr/alternate (second last-move)))))
+(defmethod BL/isEmpty Board [_] false)
+(defmethod BL/occupiedPositions Board [b] (set (keys (:positions b))))
+(defmethod BL/moves Board [b] (count (:positions b)))
+
+(t/ann ^:no-check clojure.set/subset? [(t/Set t/Any) (t/Set t/Any) -> boolean])
+(defmethod BL/isSubboardOf [Board Board] [b1 b2]
+  (let [poss1 (set (:positions b1))
+        poss2 (set (:positions b2))]
+    (clojure.set/subset? poss1 poss2)))
+(defmethod BL/isProperSubboardOf [Board Board] [b1 b2]
+  (let [poss1 (set (:positions b1))
+        poss2 (set (:positions b2))]
+    (and (clojure.set/subset? poss1 poss2)
+         (not= poss1 poss2))))
+(defmethod BL/playerAt Board [b p]
+  (get (:positions b) p))
+(defmethod BL/showBoard Board [b]
+  (let [poss (:positions b)]
+    (showEachPosition (t/fn [p :- Position] :- String (pos poss " " p)))))
+(defmethod BL/showLine Board [b]
+  (let [poss (:positions b)]
+    (showLinePosition (t/fn [p :- Position] :- String (pos poss "." p)))))
+
+;; instance BoardLike FinishedBoard where
+(defmethod BL/isEmpty FinishedBoard [fb] (BL/isEmpty (:b fb)))
+(defmethod BL/occupiedPositions FinishedBoard [fb] (BL/occupiedPositions (:b fb)))
+(defmethod BL/moves FinishedBoard [fb] (BL/moves (:b fb)))
+(defmethod BL/isSubboardOf [FinishedBoard FinishedBoard] [b1 b2]
+  (BL/isSubboardOf (:b b1) (:b b2)))
+(defmethod BL/isProperSubboardOf [FinishedBoard FinishedBoard] [b1 b2]
+  (BL/isProperSubboardOf (:b b1) (:b b2)))
+(defmethod BL/playerAt FinishedBoard [fb p] (BL/playerAt (:b fb) p))
+(defmethod BL/showBoard FinishedBoard [fb] (BL/showBoard (:b fb)))
+(defmethod BL/showLine FinishedBoard [fb] (BL/showLine (:b fb)))

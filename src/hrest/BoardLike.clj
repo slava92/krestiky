@@ -32,12 +32,12 @@
 
 ;; | Returns whether or not the first given board can transition to the second given board.
 (t/ann isSubboardOf (t/All [b] [b b -> boolean]))
-(defmulti isSubboardOf (t/fn [b1 :- t/Any b2 :- t/Any] (clazz b1)))
+(defmulti isSubboardOf (t/fn [b1 :- t/Any b2 :- t/Any] [(clazz b1) (clazz b2)]))
 (defmethod isSubboardOf :default [b1 b2] (abstract "isSubboardOf"))
 
 ;; | Returns whether or not the first given board can transition to the second given board and they are inequal.
 (t/ann isProperSubboardOf (t/All [b] [b b -> boolean]))
-(defmulti isProperSubboardOf (t/fn [b1 :- t/Any b2 :- t/Any] (clazz b1)))
+(defmulti isProperSubboardOf (t/fn [b1 :- t/Any b2 :- t/Any] [(clazz b1) (clazz b2)]))
 (defmethod isProperSubboardOf :default [b1 b2] (abstract "isProperSubboardOf"))
 
 ;; | Returns the player at the given position.
