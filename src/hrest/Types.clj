@@ -7,7 +7,7 @@
 
 (def Player1 (->Player "Alice"))
 (def Player2 (->Player "Bob"))
-(def Nobody (->Player "Nobody"))
+(def Nobody (->Player "Ghost"))
 
 (t/ann-record Position [pos :- String])
 (defrecord Position [pos])
@@ -35,6 +35,14 @@
 (defrecord GameFinished [board])
 
 (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
+
+(t/ann-record TakeBackIsEmpty[])
+(defrecord TakeBackIsEmpty[])
+
+(t/ann-record TakeBackIsBoard [board :- Board])
+(defrecord TakeBackIsBoard [board])
+
+(t/defalias TakenBack (t/U TakeBackIsEmpty TakeBackIsBoard))
 
 (defn abstract [s] (throw (Exception. (format "abstract '%s'" s))))
 (defn undefined [] (abstract "TBI"))
