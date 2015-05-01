@@ -7,6 +7,7 @@
             [hrest.Position :as Pos :refer [NW N NE E SE S SW W C]]
             [clojure.set])
   (:import [hrest.Types EmptyBoard Board FinishedBoard GameResult
+            UnfinishedEmpty UnfinishedBoard
             PositionOccupied KeepPlaying GameFinished]
            [hrest.Types Position Player])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
@@ -159,3 +160,56 @@
 (defmethod BL/playerAt FinishedBoard [fb p] (BL/playerAt (:b fb) p))
 (defmethod BL/showBoard FinishedBoard [fb] (BL/showBoard (:b fb)))
 (defmethod BL/showLine FinishedBoard [fb] (BL/showLine (:b fb)))
+
+;; instance Show Unfinished where
+(defmethod show UnfinishedEmpty [ub] (show (:eb ub)))
+(defmethod show UnfinishedBoard [ub] (show (:b ub)))
+
+;; TODO: no dispatch by expected result
+;; instance Move Unfinished Unempty where
+;;   p --> UnfinishedEmpty b =
+;;     UnemptyBoard (p --> b)
+;;   p --> UnfinishedBoard b =
+;;     case p --> b of PositionAlreadyOccupied -> UnemptyBoard b
+;;                     KeepPlaying b' -> UnemptyBoard b'
+;;                     GameFinished b' -> UnemptyFinished b'
+
+(t/ann
+ unfinished (t/All [a] [[EmptyBoard -> a]
+                        [Board -> a]
+                        Unfinished
+                        -> a]))
+(defmulti unfinished
+  (t/fn [feb :- t/Any fb :- t/Any ub :- t/Any] (clazz ub)))
+(defmethod unfinished UnfinishedEmpty [feb fb ub] (feb (:eb ub)))
+(defmethod unfinished UnfinishedBoard [feb fb ub] (fb (:b ub)))
+
+;; instance BoardLike Unfinished where
+(defmethod BL/whoseTurn UnfinishedEmpty [ub] (BL/whoseTurn (:eb ub)))
+(defmethod BL/whoseTurn UnfinishedBoard [ub] (BL/whoseTurn (:b ub)))
+(defmethod BL/whoseNotTurn UnfinishedEmpty [ub] (BL/whoseNotTurn (:eb ub)))
+(defmethod BL/whoseNotTurn UnfinishedBoard [ub] (BL/whoseNotTurn (:b ub)))
+(defmethod BL/isEmpty UnfinishedEmpty [ub] (BL/isEmpty (:eb ub)))
+(defmethod BL/isEmpty UnfinishedBoard [ub] (BL/isEmpty (:b ub)))
+(defmethod BL/occupiedPositions UnfinishedEmpty [ub] (BL/occupiedPositions (:eb ub)))
+(defmethod BL/occupiedPositions UnfinishedBoard [ub] (BL/occupiedPositions (:b ub)))
+(defmethod BL/moves UnfinishedEmpty [ub] (BL/moves (:eb ub)))
+(defmethod BL/moves UnfinishedBoard [ub] (BL/moves (:b ub)))
+
+(defmethod BL/isSubboardOf [UnfinishedEmpty UnfinishedEmpty] [_ _] true)
+(defmethod BL/isSubboardOf [UnfinishedEmpty UnfinishedBoard] [_ _] true)
+(defmethod BL/isSubboardOf [UnfinishedBoard UnfinishedEmpty] [_ _] false)
+(defmethod BL/isSubboardOf [UnfinishedBoard UnfinishedBoard] [b1 b2]
+  (BL/isSubboardOf b1 b2))
+
+(defmethod BL/isProperSubboardOf [UnfinishedEmpty UnfinishedEmpty] [_ _] false)
+(defmethod BL/isProperSubboardOf [UnfinishedEmpty UnfinishedBoard] [_ _] true)
+(defmethod BL/isProperSubboardOf [UnfinishedBoard UnfinishedEmpty] [_ _] false)
+(defmethod BL/isProperSubboardOf [UnfinishedBoard UnfinishedBoard] [b1 b2]
+  (BL/isProperSubboardOf b1 b2))
+(defmethod BL/playerAt UnfinishedEmpty [ub p] (BL/playerAt (:eb ub) p))
+(defmethod BL/playerAt UnfinishedBoard [ub p] (BL/playerAt (:b ub) p))
+(defmethod BL/showBoard UnfinishedEmpty [ub] (BL/showBoard (:eb ub)))
+(defmethod BL/showBoard UnfinishedBoard [ub] (BL/showBoard (:b ub)))
+(defmethod BL/showLine UnfinishedEmpty [ub] (BL/showLine (:eb ub)))
+(defmethod BL/showLine UnfinishedBoard [ub] (BL/showLine (:b ub)))
