@@ -14,7 +14,7 @@
     (let [new-board (B/->board-type
                      (alternate (BL/whose-turn board))
                      {(to-int pos) (BL/whose-turn board)}
-                     (+ (BL/nmoves board) 1)
+                     (inc (BL/nmoves board))
                      nil)]
       new-board)))
 

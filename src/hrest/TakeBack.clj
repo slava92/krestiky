@@ -9,7 +9,7 @@
 ;; class TakeBack to from | to -> from where
 ;;   takeBack :: to -> from
 (t/ann takeBack (t/All [from] [from -> TakenBack]))
-(defmulti takeBack (fn [board] (clazz board)))
+(defmulti takeBack clazz)
 
 ;; instance TakeBack FinishedBoard TakenBack where
 (defmethod takeBack FinishedBoard [{:keys [b]}]

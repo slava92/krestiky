@@ -8,4 +8,4 @@
                  [org.clojure/core.typed "0.2.84"]]
   ;; core.typed repository:
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
-  :core.typed {:check [krestiky.Board]})
+  :core.typed {:check [krestiky.Board hrest.Board]})

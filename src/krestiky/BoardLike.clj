@@ -1,7 +1,8 @@
 (ns krestiky.BoardLike
   (:require [krestiky.Types :refer :all]
             [krestiky.Position :as Pos]
-            [krestiky.Player :as Plr])
+            [krestiky.Player :as Plr]
+            [clojure.string :as str])
   (:import [krestiky.Types P1])
   (:require [clojure.core.typed :as t :refer [check-ns]]))
 (set! *warn-on-reflection* true)
@@ -42,7 +43,7 @@
 (t/ann not-occupied? [t/Any Position -> boolean])
 (defmulti not-occupied? (t/fn [x :- t/Any y :- Position] (clazz x)))
 (defmethod not-occupied? :default [brd pos]
-  (= nil (player-at brd pos)))
+  (nil? (player-at brd pos)))
 
 (t/ann player-at-or [t/Any Position (P1 Player) -> Player])
 (defmulti player-at-or (t/fn [b :- t/Any x :- Position or :- (P1 Player)] (clazz x)))
@@ -58,7 +59,7 @@
        (partition-all 3)
        (map (t/fn [cs :- (t/Coll char)] (interpose \space cs)))
        (interpose [\newline])
-       (map (t/fn [cs :- (t/Coll char)] (apply str cs)))
+       (map (t/fn [cs :- (t/Coll char)] (str/join cs)))
        (apply str)))
 
 (t/ann simple-chars board-fold-fn)

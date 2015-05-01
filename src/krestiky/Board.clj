@@ -25,7 +25,7 @@
 
 (t/defn maybe-fold
   [e :- (t/Option Player) p :- (t/Option Player)] :- (t/Option Player)
-  (if (and (not= e nil) (= e p)) e nil))
+  (when (and (not= e nil) (= e p)) e))
 
 (t/defn pos->plrs [board :- Board diag :- (t/Coll Position)] :- (t/Coll (t/Option Player))
   (map (t/fn [pos :- Position] :- (t/Option Player)
@@ -49,7 +49,7 @@
       (let [new-board (->board-type
                        (alternate (BL/whose-not-turn board))
                        (assoc pos-map (to-int pos) (BL/whose-turn board))
-                       (+ (BL/nmoves board) 1)
+                       (inc (BL/nmoves board))
                        board)]
         (if (game-over? new-board)
           (MR/mk-game-over (FB/->finished-board-type new-board))

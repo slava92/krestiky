@@ -5,7 +5,8 @@
             [hrest.MoveResult :as MR]
             [hrest.Player :as Plr]
             [hrest.Position :as Pos :refer [NW N NE E SE S SW W C]]
-            [clojure.set])
+            [clojure.set]
+            [clojure.string :as str])
   (:import [hrest.Types EmptyBoard Board FinishedBoard GameResult
             UnfinishedEmpty UnfinishedBoard UnemptyBoard UnemptyFinished
             PositionOccupied KeepPlaying GameFinished]
@@ -71,13 +72,13 @@
 
 ;; instance Show Board where
 (defmethod show Board [b]
-  (apply str (interpose " " [(showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"])))
+  (str/join " " [(showPositionMap (:positions b)) "[" (show (BL/whoseTurn b)) "to move ]"]))
 
 ;; instance Show FinishedBoard where
 (defmethod show FinishedBoard [fb]
-  (let [summary (GR/gameResult #(show %) "draw" (:gr fb))]
+  (let [summary (GR/gameResult show "draw" (:gr fb))]
     (t/ann-form summary String)
-    (apply str (interpose " " [(showPositionMap (:positions (:b fb))) "[[" summary "]]"]))))
+    (str/join " " [(showPositionMap (:positions (:b fb))) "[[" summary "]]"])))
 
 ;; | Shows a board using ASCII notation and substituting the returned string for each position.
 ;;   k ^ The function returning the string to substitute each position.
@@ -90,11 +91,11 @@
               z
               (str "| " (k SW) " | " (k S ) " | " (k SE) " |")
               z]]
-    (apply str (interpose "\n" each))))
+    (str/join "\n" each)))
 
 ;;   k ^ The function returning the string to substitute each position.
 (t/defn showEachPositionFlat [k :- [Position -> String]] :- String
-  (str "1 2 3 4 5 6 7 8 9\n" (apply str (interpose " " (map k Pos/positions)))))
+  (str "1 2 3 4 5 6 7 8 9\n" (str/join " " (map k Pos/positions))))
 
 (t/defn showLinePosition [k :- [Position -> String]] :- String
   (str "|" (k NW) (k N) (k NE) "|" (k W) (k C) (k E) "|" (k SW) (k S) (k SE) "|"))
