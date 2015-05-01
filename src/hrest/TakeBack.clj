@@ -33,8 +33,7 @@
                           Position)
           positions' (dissoc (:positions board) pos)
           moves' (apply list (rest (:moves board)))]
-      (->TakeBackIsBoard (->Board moves' positions'))
-      (undefined))))
+      (->TakeBackIsBoard (->Board moves' positions')))))
 
 (t/ann foldTakenBack
        (t/All [a] [a [Board -> a] TakenBack -> a]))

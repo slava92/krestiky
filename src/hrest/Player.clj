@@ -17,6 +17,6 @@
 
 (t/defn alternate [p :- Player] (player Player2 Player1 p))
 
-(t/defn to-char [p :- Player] (player \X \O p))
+(t/defn toSymbol [p :- Player] (player "X" "O" p))
 
 (defmethod show Player [p] (:name p))

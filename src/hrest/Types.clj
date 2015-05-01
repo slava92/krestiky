@@ -25,13 +25,21 @@
 (t/ann-record FinishedBoard [b :- Board gr :- GameResult])
 (defrecord FinishedBoard [b gr])
 
-(t/ann-record UnfinishedEmpty [eb :- EmptyBoard])
-(defrecord UnfinishedEmpty [eb])
+(t/ann-record UnfinishedEmpty [b :- EmptyBoard])
+(defrecord UnfinishedEmpty [b])
 
 (t/ann-record UnfinishedBoard [b :- Board])
 (defrecord UnfinishedBoard [b])
 
 (t/defalias Unfinished (t/U UnfinishedEmpty UnfinishedBoard))
+
+(t/ann-record UnemptyBoard [b :- Board])
+(defrecord UnemptyBoard [b])
+
+(t/ann-record UnemptyFinished [b :- FinishedBoard])
+(defrecord UnemptyFinished [b])
+
+(t/defalias Unempty (t/U UnemptyFinished UnemptyBoard))
 
 (t/ann-record PositionOccupied [])
 (defrecord PositionOccupied [])
