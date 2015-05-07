@@ -1,8 +1,6 @@
 (ns noliky.Types
   (:require [cljs.nodejs :as nodejs]))
 
-(nodejs/enable-util-print!)
-
 (defrecord Player [name])
 
 (def Player1 (->Player "Alice"))
@@ -42,10 +40,3 @@
 
 (defmulti show (fn [x] (str x)))
 (defmethod show :default [x] (abstract "show"))
-
-
-(defn -main [& args]
-  (println "Hello world!")
-  (println (str Player1)))
-
-(set! *main-cli-fn* -main)
