@@ -1,42 +1,45 @@
-(ns noliky.Types
-  (:require [cljs.nodejs :as nodejs]))
+(ns noliky.Types)
 
-(defrecord Player [name])
+(defrecord Player [name type])
+(def Player1 (->Player "Alice" :Player))
+(def Player2 (->Player "Bob" :Player))
+(def Nobody (->Player "Ghost" :Player))
 
-(def Player1 (->Player "Alice"))
-(def Player2 (->Player "Bob"))
-(def Nobody (->Player "Ghost"))
+(defrecord Position [pos type])
 
-(defrecord Position [pos])
+(defrecord GameResult [result player type])
 
-(defrecord GameResult [result player])
+(defrecord EmptyBoard [type])
 
-(defrecord EmptyBoard [])
+(defrecord Board [moves positions type])
 
-(defrecord Board [moves positions])
+(defrecord FinishedBoard [b gr type])
 
-(defrecord FinishedBoard [b gr])
+;; (t/defalias Unfinished (t/U UnfinishedEmpty UnfinishedBoard))
+(defrecord UnfinishedEmpty [b type])
 
-(defrecord UnfinishedEmpty [b])
+(defrecord UnfinishedBoard [b type])
 
-(defrecord UnfinishedBoard [b])
+;; (t/defalias Unempty (t/U UnemptyFinished UnemptyBoard))
+(defrecord UnemptyBoard [b type])
 
-(defrecord UnemptyBoard [b])
+(defrecord UnemptyFinished [b type])
 
-(defrecord UnemptyFinished [b])
+;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
+(defrecord PositionOccupied [type])
 
-(defrecord PositionOccupied [])
+(defrecord KeepPlaying [board type])
 
-(defrecord KeepPlaying [board])
+(defrecord GameFinished [board type])
 
-(defrecord GameFinished [board])
+;; (t/defalias TakenBack (t/U TakeBackIsEmpty TakeBackIsBoard))
+(defrecord TakeBackIsEmpty[type])
 
-(defrecord TakeBackIsEmpty[])
-
-(defrecord TakeBackIsBoard [board])
+(defrecord TakeBackIsBoard [board type])
 
 (defn abstract [s] (throw (js/Error. (str "abstract " s))))
 (defn undefined [] (abstract "TBI"))
 
-(defmulti show (fn [x] (str x)))
+(defmulti show (fn [x] (:type x)))
 (defmethod show :default [x] (abstract "show"))
+
