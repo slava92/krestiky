@@ -1,9 +1,9 @@
 (ns noliky.GameResult
   (:require [noliky.Types :as T]))
 
-(def Draw (T/->GameResult :Draw T/Nobody))
-(def WinPlayer1 (T/->GameResult :Win T/Player1))
-(def WinPlayer2 (T/->GameResult :Win T/Player2))
+(def Draw (T/->GameResult :Draw T/Nobody :GameResult))
+(def WinPlayer1 (T/->GameResult :Win T/Player1 :GameResult))
+(def WinPlayer2 (T/->GameResult :Win T/Player2 :GameResult))
 
 (defn gameResult [pwin draw gr]
   (if (= (:result gr) :Win) (pwin (:player gr)) draw))
