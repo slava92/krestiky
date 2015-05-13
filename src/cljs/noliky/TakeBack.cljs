@@ -23,7 +23,7 @@
     (T/->TakeBackIsEmpty :TakeBackIsEmpty)
     (let [pos-plr (first (:moves board))
           pos (if (nil? pos-plr)
-                (abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")
+                (T/abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")
                 (first pos-plr))
           positions' (dissoc (:positions board) pos)
           moves' (apply list (rest (:moves board)))]
