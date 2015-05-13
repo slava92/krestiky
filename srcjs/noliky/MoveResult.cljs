@@ -16,5 +16,5 @@
   (foldMoveResult nil identity (constantly nil) mr))
 
 (defmethod show :PositionOccupied [_] "*Position already occupied*")
-(defmethod show :KeepPlaying [mr] (str "{" (show (:board mr)) "}"))
-(defmethod show :GameFinished [mr] (str "{{" (show (:board mr)) "}}"))
+(defmethod show :KeepPlaying [mr] (str "{" (T/show (:board mr)) "}"))
+(defmethod show :GameFinished [mr] (str "{{" (T/show (:board mr)) "}}"))
