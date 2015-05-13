@@ -26,3 +26,8 @@
                           :optimizations :simple
                           :pretty-print true}}]}}})
 ;; (cemerick.austin.repls/exec)
+;; 
+;; :injections
+;; (require '[cemerick.austin.repls
+;;            :refer (exec)
+;;            :rename {exec austin-exec}])

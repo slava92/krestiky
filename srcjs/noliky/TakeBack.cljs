@@ -9,23 +9,27 @@
 (defmethod takeBack :FinishedBoard [{:keys [b]}]
   (let [pos-plr (first (:moves b))
         pos (if (nil? pos-plr)
-              (abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")
+              (T/abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")
               (first pos-plr))
         positions' (dissoc (:positions b) pos)
         moves' (apply list (rest (:moves b)))]
-    (->TakeBackIsBoard (->Board moves' positions' :Board) :TakeBackIsBoard)))
+    (T/->TakeBackIsBoard
+     (T/->Board moves' positions' :Board)
+     :TakeBackIsBoard)))
 
 ;; instance TakeBack Board TakenBack where
 (defmethod takeBack :Board [board]
   (if (= 1 (count (:moves board)))
-    (->TakeBackIsEmpty :TakeBackIsEmpty)
+    (T/->TakeBackIsEmpty :TakeBackIsEmpty)
     (let [pos-plr (first (:moves board))
           pos (if (nil? pos-plr)
                 (abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")
                 (first pos-plr))
           positions' (dissoc (:positions board) pos)
           moves' (apply list (rest (:moves board)))]
-      (->TakeBackIsBoard (->Board moves' positions' :Board) :TakeBackIsBoard))))
+      (T/->TakeBackIsBoard
+       (T/->Board moves' positions' :Board)
+       :TakeBackIsBoard))))
 
 (defmulti foldTakenBack
   (fn [a fb tb] (:type tb)))
