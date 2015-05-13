@@ -1,4 +1,6 @@
 *.class
 /.lein-*
 /.nrepl-port
+/.repl
+/out
 /target
