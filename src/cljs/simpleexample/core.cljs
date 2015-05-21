@@ -3,6 +3,7 @@
   (:require [noliky.Types :as T]
             [noliky.Board :as B]
             [noliky.BoardLike :as BL]
+            [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
@@ -11,6 +12,7 @@
                                    dispatch
                                    dispatch-sync
                                    subscribe]]))
+(enable-console-print!)
 
 ;; trigger a dispatch every second
 (defonce time-updater (js/setInterval
@@ -19,7 +21,8 @@
 (def initial-state
   {:timer (js/Date.)
    :time-color "#f34"
-   :game {:board (B/empty-board)}})
+   :game {:move-result nil
+          :board (B/empty-board)}})
 
 ;; -- Event Handlers ----------------------------------------------------------
 
@@ -98,9 +101,13 @@
 
 (defn handle-cell-click
   [app-state [_ position]]
-  (update-in
-   app-state [:game :board]
-   #(B/--> position %)))
+  (let [board (get-in app-state [:game :board])
+        move-result (B/--> position board)
+        board' (MR/foldMoveResult board identity identity move-result)]
+    (-> app-state
+        (assoc-in [:game :move-result] move-result)
+        (assoc-in [:game :board] board'))))
+
 (register-handler
  :pos-click handle-cell-click)
 
@@ -112,13 +119,11 @@
     (fn []
       (if (contains? @taken position)
         [:div {:id (:pos position) :class "cell"
-               :on-click  #(dispatch [:pos-click position])
-               }
-         "X"]
+               :on-click  #(dispatch [:pos-click position])}
+         (Plr/toSymbol (BL/playerAt board position))]
         [:div {:id (:pos position) :class "cell"
-               :on-click  #(dispatch [:pos-click position])
-               }
-         "*"]))))
+               :on-click  #(dispatch [:pos-click position])}
+         ""]))))
 
 (defn board
   []
