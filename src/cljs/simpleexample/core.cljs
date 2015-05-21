@@ -96,16 +96,29 @@
                   :on-change #(dispatch
                                [:time-color (-> % .-target .-value)])}]])))
 
+(defn handle-cell-click
+  [app-state [_ position]]
+  (update-in
+   app-state [:game :board]
+   #(B/--> position %)))
+(register-handler
+ :pos-click handle-cell-click)
+
 (defn cell
   [idx]
   (let [board (subscribe [:board])
-        ;; taken (BL/occupiedPositions @board)
-        taken (atom #{})
+        taken (reaction (BL/occupiedPositions @board))
         position (get Pos/positions idx)]
     (fn []
       (if (contains? @taken position)
-        [:div {:id (:pos position) :class "cell"} "X"]
-        [:div {:id (:pos position) :class "cell"} "*"]))))
+        [:div {:id (:pos position) :class "cell"
+               :on-click  #(dispatch [:pos-click position])
+               }
+         "X"]
+        [:div {:id (:pos position) :class "cell"
+               :on-click  #(dispatch [:pos-click position])
+               }
+         "*"]))))
 
 (defn board
   []
