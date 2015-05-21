@@ -102,6 +102,7 @@
        "=.=" (pos m "?" SW) "=.=" (pos m "?" S) "=.=" (pos m "?" SE) "=."))
 
 ;; instance BoardLike EmptyBoard where
+(defn empty-board [] (T/->EmptyBoard :EmptyBoard))
 (defmethod BL/whoseTurn :EmptyBoard [_] T/Player1)
 (defmethod BL/isEmpty :EmptyBoard [_] true)
 (defmethod BL/occupiedPositions :EmptyBoard [_] #{})

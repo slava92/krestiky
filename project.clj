@@ -15,7 +15,8 @@
 
   :hooks [leiningen.cljsbuild]
 
-  :profiles {:dev {:cljsbuild
+  :profiles {:dev {:plugins [[com.cemerick/austin "0.1.6"]]
+                   :cljsbuild
                    {:builds {:client {:source-paths ["devsrc"]
                                       :compiler
                                       {:main simpleexample.dev
