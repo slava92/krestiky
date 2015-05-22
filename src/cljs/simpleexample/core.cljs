@@ -48,6 +48,19 @@
     [db [_ value]]
     (assoc db :timer value)))    ;; return the new version of db
 
+(defn handle-cell-click
+  [app-state [_ position]]
+  (let [board (get-in app-state [:game :board])
+        move-result (get-in app-state [:game :move-result])
+        move-result' (B/--> position move-result)
+        board' (MR/foldMoveResult board identity identity move-result')]
+    (-> app-state
+        (assoc-in [:game :move-result] move-result')
+        (assoc-in [:game :board] board'))))
+
+(register-handler
+ :pos-click handle-cell-click)
+
 ;; -- Subscription Handlers ---------------------------------------------------
 
 (register-sub
@@ -92,7 +105,6 @@
 (defn color-input
   []
   (let [time-color (subscribe [:time-color])]
-
     (fn color-input-render
         []
         [:div.color-input
@@ -101,19 +113,6 @@
                   :value @time-color
                   :on-change #(dispatch
                                [:time-color (-> % .-target .-value)])}]])))
-
-(defn handle-cell-click
-  [app-state [_ position]]
-  (let [board (get-in app-state [:game :board])
-        move-result (get-in app-state [:game :move-result])
-        move-result' (B/--> position move-result)
-        board' (MR/foldMoveResult board identity identity move-result')]
-    (-> app-state
-        (assoc-in [:game :move-result] move-result')
-        (assoc-in [:game :board] board'))))
-
-(register-handler
- :pos-click handle-cell-click)
 
 (defn cell
   [idx]
@@ -143,13 +142,12 @@
   []
   (let [move (subscribe [:move-result])]
     (fn []
-      (prn (:type @move))
-      [:div.move-result
-       (if (nil? @move) "Ждём начала"
-           (MR/foldMoveResult "Занято"
-                              (constantly "Продолжаем")
-                              (constantly "Баста")
-                              @move))])))
+      [:h3
+       (MR/foldMoveResult
+        "Занято"
+        #(str "Ходит " (T/show (BL/whoseTurn %)))
+        (constantly "Баста")
+        @move)])))
 
 (defn simple-example
   []
