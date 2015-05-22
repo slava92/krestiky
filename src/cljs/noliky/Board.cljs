@@ -244,3 +244,15 @@
 (defmethod BL/showBoard :UnemptyFinished [ub] (BL/showBoard (:b ub)))
 (defmethod BL/showLine :UnemptyBoard [ub] (BL/showLine (:b ub)))
 (defmethod BL/showLine :UnemptyFinished [ub] (BL/showLine (:b ub)))
+
+;;; test ;;;
+
+(defn tryit []
+  (->> (empty-board)
+       (--> C)
+       (--> E)
+       (--> NE)
+       (--> SE)
+       (--> SW)
+       (--> W)
+       (T/show)))

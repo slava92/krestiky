@@ -11,6 +11,6 @@
 (def S  (T/->Position "S " :Position))
 (def SE (T/->Position "SE" :Position))
 
-(def positions [NW N NE W C E SE S SW])
+(def positions [NW N NE W C E SW S SE])
 
 (defmethod T/show :Position [p] (:pos p))
