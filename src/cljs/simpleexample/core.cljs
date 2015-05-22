@@ -5,6 +5,7 @@
             [noliky.BoardLike :as BL]
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
+            [noliky.Player :as Plr]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
                                    path
@@ -21,7 +22,7 @@
 (def initial-state
   {:timer (js/Date.)
    :time-color "#f34"
-   :game {:move-result nil
+   :game {:move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
           :board (B/empty-board)}})
 
 ;; -- Event Handlers ----------------------------------------------------------
@@ -63,9 +64,11 @@
 
 (register-sub
  :board
- (fn
-  [db _]
-  (reaction (get-in @db [:game :board]))))
+ (fn [db _] (reaction (get-in @db [:game :board]))))
+
+(register-sub
+ :move-result
+ (fn [db _] (reaction (get-in @db [:game :move-result]))))
 
 ;; -- View Components ---------------------------------------------------------
 
@@ -102,10 +105,11 @@
 (defn handle-cell-click
   [app-state [_ position]]
   (let [board (get-in app-state [:game :board])
-        move-result (B/--> position board)
-        board' (MR/foldMoveResult board identity identity move-result)]
+        move-result (get-in app-state [:game :move-result])
+        move-result' (B/--> position move-result)
+        board' (MR/foldMoveResult board identity identity move-result')]
     (-> app-state
-        (assoc-in [:game :move-result] move-result)
+        (assoc-in [:game :move-result] move-result')
         (assoc-in [:game :board] board'))))
 
 (register-handler
@@ -119,8 +123,8 @@
     (fn []
       (if (contains? @taken position)
         [:div {:id (:pos position) :class "cell"
-               :on-click  #(dispatch [:pos-click position])}
-         (Plr/toSymbol (BL/playerAt board position))]
+                 :on-click  #(dispatch [:pos-click position])}
+         (Plr/toSymbol (BL/playerAt @board position))]
         [:div {:id (:pos position) :class "cell"
                :on-click  #(dispatch [:pos-click position])}
          ""]))))
@@ -135,6 +139,18 @@
    [:div.row
     [cell 6] [cell 7] [cell 8]]])
 
+(defn status
+  []
+  (let [move (subscribe [:move-result])]
+    (fn []
+      (prn (:type @move))
+      [:div.move-result
+       (if (nil? @move) "Ждём начала"
+           (MR/foldMoveResult "Занято"
+                              (constantly "Продолжаем")
+                              (constantly "Баста")
+                              @move))])))
+
 (defn simple-example
   []
   [:div
@@ -144,7 +160,7 @@
    [:div
     [greeting "Крестики Нолики"]
     [board]
-    [greeting "На дне"]]])
+    [status]]])
 
 
 ;; -- Entry Point -------------------------------------------------------------
