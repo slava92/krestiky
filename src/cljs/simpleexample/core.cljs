@@ -3,6 +3,7 @@
   (:require [noliky.Types :as T]
             [noliky.Board :as B]
             [noliky.BoardLike :as BL]
+            [noliky.GameResult :as GR]
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [noliky.Player :as Plr]
@@ -146,7 +147,11 @@
        (MR/foldMoveResult
         "Занято"
         #(str "Ходит " (T/show (BL/whoseTurn %)))
-        (constantly "Баста")
+        #(GR/playerGameResult
+          (str (T/show T/Player1) " wins!")
+          (str (T/show T/Player2) " wins!")
+          "Ничья!"
+          (B/getResult %))
         @move)])))
 
 (defn simple-example
