@@ -17,7 +17,7 @@
 
   :profiles {:dev {:plugins [[com.cemerick/austin "0.1.6"]]
                    :cljsbuild
-                   {:builds {:client {:source-paths ["devsrc"]
+                   {:builds {:client {:source-paths ["dev"]
                                       :compiler
                                       {:main simpleexample.dev
                                        :optimizations :none
@@ -34,8 +34,8 @@
 
   :cljsbuild {:builds {:client {:source-paths ["src/cljs"]
                                 :compiler
-                                {:output-dir "target/client"
-                                 :output-to "target/client.js"}}}
+                                {:output-dir "js/game"
+                                 :output-to "js/game.js"}}}
               :repl
               {:injections
                (require '[cemerick.austin.repls

@@ -7,24 +7,17 @@
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [noliky.Player :as Plr]
-            [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
-                                   path
                                    register-sub
                                    dispatch
                                    dispatch-sync
                                    subscribe]]))
 (enable-console-print!)
 
-;; trigger a dispatch every second
-(defonce time-updater (js/setInterval
-                        #(dispatch [:timer (js/Date.)]) 1000))
-
 (def initial-state
-  {:timer (js/Date.)
-   :time-color "#f34"
-   :game {:move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
-          :board (B/empty-board)}})
+  {:move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
+   :attempt (T/->KeepPlaying (B/empty-board) :KeepPlaying)
+   :board (B/empty-board)})
 
 ;; -- Event Handlers ----------------------------------------------------------
 
@@ -34,30 +27,21 @@
     [db _]
     (merge db initial-state)))    ;; what it returns becomes the new state
 
-(register-handler
-  :time-color                     ;; usage:  (submit [:time-color 34562])
-  (path [:time-color])            ;; this is middleware
-  (fn
-    [time-color [_ value]]        ;; path middleware adjusts the first parameter
-    value))
-
-(register-handler
-  :timer
-  (fn
-    ;; the first item in the second argument is :timer the second is the 
-    ;; new value
-    [db [_ value]]
-    (assoc db :timer value)))    ;; return the new version of db
-
 (defn handle-cell-click
   [app-state [_ position]]
-  (let [board (get-in app-state [:game :board])
-        move-result (get-in app-state [:game :move-result])
-        move-result' (B/--> position move-result)
-        board' (MR/foldMoveResult board identity identity move-result')]
+  (let [board (get-in app-state [:board])
+        move-result (get-in app-state [:move-result])
+        attempt (B/--> position move-result)
+        board' (MR/foldMoveResult board identity identity attempt)
+        move-result' (MR/foldMoveResult
+                      move-result
+                      (constantly attempt)
+                      (constantly attempt)
+                      attempt)]
     (-> app-state
-        (assoc-in [:game :move-result] move-result')
-        (assoc-in [:game :board] board'))))
+        (assoc-in [:move-result] move-result')
+        (assoc-in [:board] board')
+        (assoc-in [:attempt] attempt))))
 
 (register-handler
  :pos-click handle-cell-click)
@@ -65,55 +49,18 @@
 ;; -- Subscription Handlers ---------------------------------------------------
 
 (register-sub
-  :timer
-  (fn 
-    [db _]                       ;; db is the app-db atom
-    (reaction (:timer @db))))    ;; wrap the compitation in a reaction
-
-(register-sub
-  :time-color
-  (fn 
-    [db _]
-    (reaction (:time-color @db))))
-
-(register-sub
  :board
- (fn [db _] (reaction (get-in @db [:game :board]))))
+ (fn [db _] (reaction (get-in @db [:board]))))
 
 (register-sub
- :move-result
- (fn [db _] (reaction (get-in @db [:game :move-result]))))
+ :attempt
+ (fn [db _] (reaction (get-in @db [:attempt]))))
 
 ;; -- View Components ---------------------------------------------------------
 
 (defn greeting
   [message]
   [:h2 message])
-
-(defn clock
-  []
-  (let [time-color (subscribe [:time-color])
-        timer (subscribe [:timer])]
-    (fn clock-render
-        []
-        (let [time-str (-> @timer
-                           .toTimeString
-                           (clojure.string/split " ")
-                           first)
-              style {:style {:color @time-color}}]
-             [:div.example-clock style time-str]))))
-
-(defn color-input
-  []
-  (let [time-color (subscribe [:time-color])]
-    (fn color-input-render
-        []
-        [:div.color-input
-         "Цвет часов: "
-         [:input {:type "text"
-                  :value @time-color
-                  :on-change #(dispatch
-                               [:time-color (-> % .-target .-value)])}]])))
 
 (defn cell
   [idx]
@@ -141,7 +88,7 @@
 
 (defn status
   []
-  (let [move (subscribe [:move-result])]
+  (let [move (subscribe [:attempt])]
     (fn []
       [:h3
        (MR/foldMoveResult
@@ -157,13 +104,9 @@
 (defn simple-example
   []
   [:div
-   [:div
-    [greeting "Доброе утро, страна. Сейчас"]
-    [clock]]
-   [:div
-    [greeting "Крестики Нолики"]
-    [board]
-    [status]]])
+   [greeting "Крестики Нолики"]
+   [board]
+   [status]])
 
 
 ;; -- Entry Point -------------------------------------------------------------
