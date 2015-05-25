@@ -7,6 +7,7 @@
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [noliky.Player :as Plr]
+            [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
                                    register-sub
                                    dispatch
