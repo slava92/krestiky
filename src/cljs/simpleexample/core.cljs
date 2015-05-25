@@ -47,6 +47,10 @@
 (register-handler
  :pos-click handle-cell-click)
 
+(register-handler
+ :new-game
+ (fn [db _] initial-state))
+
 ;; -- Subscription Handlers ---------------------------------------------------
 
 (register-sub
@@ -56,6 +60,8 @@
 (register-sub
  :attempt
  (fn [db _] (reaction (get-in @db [:attempt]))))
+
+(register-sub :new-game (fn [db _] db))
 
 ;; -- View Components ---------------------------------------------------------
 
@@ -69,13 +75,11 @@
         taken (reaction (BL/occupiedPositions @board))
         position (get Pos/positions idx)]
     (fn []
-      (if (contains? @taken position)
-        [:div {:id (:pos position) :class "cell"
-                 :on-click  #(dispatch [:pos-click position])}
-         (Plr/toSymbol (BL/playerAt @board position))]
-        [:div {:id (:pos position) :class "cell"
-               :on-click  #(dispatch [:pos-click position])}
-         ""]))))
+      [:div {:id (:pos position) :class "cell"
+             :on-click  #(dispatch [:pos-click position])}
+       (if (contains? @taken position)
+         (Plr/toSymbol (BL/playerAt @board position))
+         "")])))
 
 (defn board
   []
@@ -86,6 +90,12 @@
     [cell 3] [cell 4] [cell 5]]
    [:div.row
     [cell 6] [cell 7] [cell 8]]])
+
+(defn new-game
+  []
+  [:div.new-game-wrapper
+   [:input.new-game {:type "submit" :value "New Game"
+                     :on-click #(dispatch [:new-game])}]])
 
 (defn status
   []
@@ -107,7 +117,8 @@
   [:div
    [greeting "Крестики Нолики"]
    [board]
-   [status]])
+   [status]
+   [new-game]])
 
 
 ;; -- Entry Point -------------------------------------------------------------

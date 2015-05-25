@@ -1,24 +1,40 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
 
-div, h1, input {
+body {
+    -webkit-align-items: center;
+    -webkit-flex-flow: column;
+    -webkit-justify-content: center;
+    align-items: center;
+    display: -webkit-flex;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+
+.new-game-wrapper {
+    text-align: center;
+}
+
+button {
+    margin-top: 20px;
+    font-size: 0.75em;
+}
+
+div, h1, h2, h3 {
     font-family: HelveticaNeue, Helvetica;
-    color: #777;
+    color: #555;
 }
 
-.example-clock {
-    font-size: 32px;
-    line-height: 1.2em;
-    font-family: HelveticaNeue-UltraLight, Helvetica;
+input.new-game {
+    color: #222;
 }
 
-@media (max-width: 768px) {
-    .example-clock {
-        font-size: 32px;
-    }
-}
-
-.color-input, .color-input input {
-    font-size: 24px;
-    line-height: 1.5em;
+.cell {
+    text-align: center;
+    font-size: 3em;
 }
 
 .row {
@@ -32,7 +48,9 @@ div, h1, input {
     width: 100px;
     height: 100px;
     line-height: 100px;
+    text-align: center;
 }
+
 .row:nth-child(1) > div {
     border-bottom: 1px solid black;
 }
@@ -53,6 +71,8 @@ div, h1, input {
 .row > div:nth-child(3) {
     border-left: 1px solid black;
 }
-.cell {
-    text-align: center;
+/*
+div {
+    border: 1px solid red;
 }
+*/
