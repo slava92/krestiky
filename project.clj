@@ -7,49 +7,29 @@
   :dependencies [[org.clojure/clojurescript "0.0-3269"]
                  [org.clojure/clojure "1.7.0-beta2"]
                  [reagent "0.5.0"]
-                 [re-frame "0.4.0"]
-                 [figwheel "0.3.2"]]
+                 [re-frame "0.4.0"]]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-figwheel "0.2.3-SNAPSHOT"]]
+  :source-paths ["src/clj"]
 
-  :hooks [leiningen.cljsbuild]
+  :plugins [[lein-cljsbuild "1.0.6"]
+            [lein-figwheel "0.3.3"]]
 
-  :profiles {:dev {:plugins [[com.cemerick/austin "0.1.6"]]
-                   :cljsbuild
-                   {:builds {:client {:source-paths ["dev"]
-                                      :compiler
-                                      {:main simpleexample.dev
-                                       :optimizations :none
-                                       :source-map true
-                                       :source-map-timestamp true}}}}}
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
-             :prod {:cljsbuild
-                    {:builds {:client {:compiler
-                                       {:optimizations :advanced
-                                        :elide-asserts true
-                                        :pretty-print false}}}}}}
+  :cljsbuild {:builds [{:id "dev"
+                        :source-paths ["src/cljs"]
 
-  :figwheel {:repl false}
+                        :figwheel {:on-jsload "simpleexample.core/client"}
 
-  :cljsbuild {:builds {:client {:source-paths ["src/cljs"]
-                                :compiler
-                                {:output-dir "js/game"
-                                 :output-to "js/game.js"}}}
-              :repl
-              {:injections
-               (require '[cemerick.austin.repls
-                          :refer (exec)
-                          :rename {exec austin-exec}])}})
-;; (cemerick.austin.repls/exec)
+                        :compiler {:main simpleexample.core
+                                   :output-to "resources/public/js/compiled/app.js"
+                                   :output-dir "resources/public/js/compiled/out"
+                                   :asset-path "js/compiled/out"
+                                   :source-map-timestamp true}}
 
-;; Figwheel: Starting server at http://localhost:3449
-;; Figwheel Config Warning (in project.clj) -- 
-;; Your build :output-dir is not in a resources directory.
-;; If you are serving your assets (js, css, etc.) with Figwheel,
-;; they must be on the resource path for the server.
-;; Your :output-dir should match this pattern: (dev-resources|resources)/public
-
-;; Figwheel: focusing on build-ids (client)
-;; Compiling "target/client.js" from ["src/cljs" "devsrc"]...
-;; WARNING: run! already refers to: #'clojure.core/run! in namespace: reagent.ratom, being replaced by: #'reagent.ratom/run!
+                       {:id "min"
+                        :source-paths ["src/cljs"]
+                        :compiler {:main simpleexample.core
+                                   :output-to "resources/public/js/compiled/app.js"
+                                   :optimizations :advanced
+                                   :pretty-print false}}]})

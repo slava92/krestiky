@@ -2,6 +2,7 @@
 /.lein-*
 /.nrepl-port
 /.repl
+/figwheel_server.log
+/js
 /out
 /target
-/js

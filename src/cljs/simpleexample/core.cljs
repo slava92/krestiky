@@ -126,6 +126,9 @@
 
 (defn ^:export client
   []
-  (dispatch-sync [:initialize])
   (reagent/render [simple-example]
                   (js/document.getElementById "app")))
+
+(defn ^:export init []
+  (dispatch-sync [:initialize])
+  (client))
