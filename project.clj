@@ -4,15 +4,15 @@
   :license {:name "Unlicense"
             :url "http://unlicense.org"}
   :source-paths ["src/cljs"]
-  :dependencies [[org.clojure/clojurescript "0.0-3269"]
+  :dependencies [[org.clojure/clojurescript "0.0-3297"]
                  [org.clojure/clojure "1.7.0-beta2"]
                  [reagent "0.5.0"]
-                 [re-frame "0.4.0"]]
-
-  :source-paths ["src/clj"]
-
+                 [re-frame "0.4.1"]]
   :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.3"]]
+            [lein-figwheel "0.3.3"]
+            [com.cemerick/clojurescript.test "0.3.3"]]
+
+  ;; :source-paths ["src/clj"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
@@ -27,9 +27,22 @@
                                    :asset-path "js/compiled/out"
                                    :source-map-timestamp true}}
 
+                       {:id "test"
+                        :source-paths ["src/cljs" "test/cljs"]
+                        :compiler {:output-to "target/cljs/testable.js"
+                                   :optimizations :whitespace
+                                   :pretty-print true}}
+
                        {:id "min"
                         :source-paths ["src/cljs"]
                         :compiler {:main simpleexample.core
                                    :output-to "resources/public/js/compiled/app.js"
                                    :optimizations :advanced
-                                   :pretty-print false}}]})
+                                   :pretty-print false}}]
+
+              :test-commands {"unit-tests"
+                              ["phantomjs" :runner
+                               "target/cljs/testable.js"]}}
+
+  :aliases {"units" ["cljsbuild" "test" "unit-tests"]}
+)

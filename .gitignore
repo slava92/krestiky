@@ -5,4 +5,5 @@
 /figwheel_server.log
 /js
 /out
+/resources/public/js
 /target
