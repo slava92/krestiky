@@ -3,17 +3,18 @@
   :url "https://github.com/slava92/krestiky"
   :license {:name "Unlicense"
             :url "http://unlicense.org"}
-  :source-paths ["src/cljs"]
-  :dependencies [[org.clojure/clojurescript "0.0-3297"]
+  :dependencies [[org.clojure/clojurescript "0.0-3308"]
                  [org.clojure/clojure "1.7.0-beta2"]
                  [reagent "0.5.0"]
                  [re-frame "0.4.1"]
                  [com.cemerick/double-check "0.6.1"]]
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.3"]
-            [com.cemerick/clojurescript.test "0.3.3"]]
+            [com.cemerick/clojurescript.test "0.3.3"]
+            [com.cemerick/austin "0.1.6"]]
 
-  ;; :source-paths ["src/clj"]
+  :source-paths ["src/cljs"]
+  :test-source-paths ["test/cljs"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
@@ -47,3 +48,5 @@
 
   :aliases {"units" ["cljsbuild" "test" "unit-tests"]}
 )
+
+;; (cemerick.austin.repls/exec)
