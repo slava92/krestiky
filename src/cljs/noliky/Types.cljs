@@ -43,3 +43,7 @@
 (defmulti show (fn [x] (:type x)))
 (defmethod show :default [x] (abstract "show"))
 
+(defprotocol strategy
+  (first-move [this])
+  (next-move [this board]))
+
