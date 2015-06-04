@@ -4,7 +4,7 @@
             [noliky.Position :as P]
             [noliky.MoveResult :as M]
             [noliky.Types :as T]
-            [clojure.set :refer [intersection]]
+            [clojure.set :refer [difference]]
             [cemerick.cljs.test :as t :refer-macros (is deftest)]
             ;; [cemerick.double-check.generators :as gen]
             [clojure.test.check.generators :as gen]
@@ -25,7 +25,7 @@
     (next-move [this board]
       (let [ops (set (BL/occupiedPositions board))
             aps (set P/positions)]
-        (rand-nth (seq (intersection ops aps)))))))
+        (rand-nth (seq (difference aps ops)))))))
 
 (deftest test-first-move
   (let [board (first-move random-moves)]
@@ -39,9 +39,9 @@
   (for-all
    [gen/nat]
    (let [fb (first-move random-moves)
-         sb (M/keepPlaying (next-move random-moves fb))]
-     ;; b.occupiedPositions.length == 2 &&
-     (= 2 (count (BL/occupiedPositions sb)))
-     ;; b.occupiedPositions.head != b.occupiedPositions.last &&
-     ;; b.whoseTurn == Player.Player1
-     )))
+         sb (M/keepPlaying (B/--> (next-move random-moves fb) fb))]
+     (and
+      (= 2 (count (BL/occupiedPositions sb)))
+      (not= (first (BL/occupiedPositions sb))
+            (last (BL/occupiedPositions sb)))
+      (= T/Player1 (BL/whoseTurn sb))))))
