@@ -7,6 +7,7 @@
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [noliky.Player :as Plr]
+            [noliky.Strategy :as S]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
                                    register-sub
@@ -29,20 +30,22 @@
     (merge db initial-state)))    ;; what it returns becomes the new state
 
 (defn handle-cell-click
-  [app-state [_ position]]
-  (let [board (get-in app-state [:board])
-        move-result (get-in app-state [:move-result])
-        attempt (B/--> position move-result)
-        board' (MR/foldMoveResult board identity identity attempt)
-        move-result' (MR/foldMoveResult
-                      move-result
-                      (constantly attempt)
-                      (constantly attempt)
-                      attempt)]
-    (-> app-state
-        (assoc-in [:move-result] move-result')
-        (assoc-in [:board] board')
-        (assoc-in [:attempt] attempt))))
+  [app-state [_ position player]]
+  (if (= player T/Player2)
+    app-state
+    (let [board (get-in app-state [:board])
+          move-result (get-in app-state [:move-result])
+          attempt (B/--> position move-result)
+          board' (MR/foldMoveResult board identity identity attempt)
+          move-result' (MR/foldMoveResult
+                        move-result
+                        (constantly attempt)
+                        (constantly attempt)
+                        attempt)]
+      (-> app-state
+          (assoc-in [:move-result] move-result')
+          (assoc-in [:board] board')
+          (assoc-in [:attempt] attempt)))))
 
 (register-handler
  :pos-click handle-cell-click)
@@ -71,12 +74,14 @@
 
 (defn cell
   [idx]
-  (let [board (subscribe [:board])
-        taken (reaction (BL/occupiedPositions @board))
-        position (get Pos/positions idx)]
+  (let [position (get Pos/positions idx)
+        board (subscribe [:board])
+        taken (reaction (BL/occupiedPositions @board))]
     (fn []
       [:div {:id (:pos position) :class "cell"
-             :on-click  #(dispatch [:pos-click position])}
+             :on-click #(dispatch [:pos-click
+                                   position
+                                   (BL/whoseTurn @board)])}
        (if (contains? @taken position)
          (Plr/toSymbol (BL/playerAt @board position))
          "")])))
