@@ -18,8 +18,8 @@
 
 (def initial-state
   {:move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
-   :attempt (T/->KeepPlaying (B/empty-board) :KeepPlaying)
-   :board (B/empty-board)})
+   :board (B/empty-board)
+   :robot S/random-moves})
 
 ;; -- Event Handlers ----------------------------------------------------------
 
@@ -29,23 +29,27 @@
     [db _]
     (merge db initial-state)))    ;; what it returns becomes the new state
 
+(defn robot [strategy board]
+  (let [pos (T/next-move strategy board)]
+    (B/--> pos board)))
+
 (defn handle-cell-click
-  [app-state [_ position player]]
-  (if (= player T/Player2)
-    app-state
+  [app-state [_ position board]]
+  (if (not= (BL/whoseTurn board) T/Player1)
+    app-state ;; ignore the click if it is not Player1
     (let [board (get-in app-state [:board])
-          move-result (get-in app-state [:move-result])
-          attempt (B/--> position move-result)
-          board' (MR/foldMoveResult board identity identity attempt)
-          move-result' (MR/foldMoveResult
-                        move-result
-                        (constantly attempt)
-                        (constantly attempt)
-                        attempt)]
+          previous-move (get-in app-state [:move-result])
+          strategy (get-in app-state [:robot])
+          attempt (B/--> position previous-move)
+          move-result (MR/foldMoveResult
+                       previous-move
+                       (partial robot strategy)
+                       (constantly attempt)
+                       attempt)
+          board' (MR/foldMoveResult board identity identity move-result)]
       (-> app-state
-          (assoc-in [:move-result] move-result')
-          (assoc-in [:board] board')
-          (assoc-in [:attempt] attempt)))))
+          (assoc-in [:move-result] move-result)
+          (assoc-in [:board] board')))))
 
 (register-handler
  :pos-click handle-cell-click)
@@ -61,8 +65,8 @@
  (fn [db _] (reaction (get-in @db [:board]))))
 
 (register-sub
- :attempt
- (fn [db _] (reaction (get-in @db [:attempt]))))
+ :move-result
+ (fn [db _] (reaction (get-in @db [:move-result]))))
 
 (register-sub :new-game (fn [db _] db))
 
@@ -81,7 +85,7 @@
       [:div {:id (:pos position) :class "cell"
              :on-click #(dispatch [:pos-click
                                    position
-                                   (BL/whoseTurn @board)])}
+                                   @board])}
        (if (contains? @taken position)
          (Plr/toSymbol (BL/playerAt @board position))
          "")])))
@@ -104,7 +108,7 @@
 
 (defn status
   []
-  (let [move (subscribe [:attempt])]
+  (let [move (subscribe [:move-result])]
     (fn []
       [:h3
        (MR/foldMoveResult

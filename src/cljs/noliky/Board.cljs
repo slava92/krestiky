@@ -142,6 +142,7 @@
     (showLinePosition (fn [p] (pos poss "." p)))))
 
 ;; instance BoardLike FinishedBoard where
+(defmethod BL/whoseTurn :FinishedBoard [_] T/Nobody)
 (defmethod BL/isEmpty :FinishedBoard [fb] (BL/isEmpty (:b fb)))
 (defmethod BL/occupiedPositions :FinishedBoard [fb] (BL/occupiedPositions (:b fb)))
 (defmethod BL/moves :FinishedBoard [fb] (BL/moves (:b fb)))
