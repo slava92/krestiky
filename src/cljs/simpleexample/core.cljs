@@ -38,11 +38,10 @@
   (if (not= (BL/whoseTurn board) T/Player1)
     app-state ;; ignore the click if it is not Player1
     (let [board (get-in app-state [:board])
-          previous-move (get-in app-state [:move-result])
           strategy (get-in app-state [:robot])
-          attempt (B/--> position previous-move)
+          attempt (B/--> position board)
           move-result (MR/foldMoveResult
-                       previous-move
+                       (T/->KeepPlaying board :KeepPlaying)
                        (partial robot strategy)
                        (constantly attempt)
                        attempt)
