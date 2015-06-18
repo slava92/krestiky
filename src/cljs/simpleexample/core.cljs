@@ -17,7 +17,8 @@
 (enable-console-print!)
 
 (def initial-state
-  {:move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
+  {:player-name (T/show T/Player1)
+   :move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
    :board (B/empty-board)
    :robot S/random-moves})
 
@@ -26,8 +27,10 @@
 (register-handler                 ;; setup initial state
   :initialize                     ;; usage:  (submit [:initialize])
   (fn 
-    [db _]
-    (merge db initial-state)))    ;; what it returns becomes the new state
+    [db [_ name]]
+    (-> db
+        (merge initial-state)
+        (assoc-in [:player-name] name))))    ;; what it returns becomes the new state
 
 (defn robot [strategy board]
   (let [pos (T/next-move strategy board)]
@@ -53,9 +56,19 @@
 (register-handler
  :pos-click handle-cell-click)
 
+(defn handle-name-update
+  [app-state [_ new-name]]
+  (assoc-in app-state [:player-name] new-name))
+
+(register-handler
+ :name-update handle-name-update)
+
 (register-handler
  :new-game
- (fn [db _] initial-state))
+ (fn [db _]
+   (assoc-in initial-state
+             [:player-name]
+             (get-in db [:player-name]))))
 
 ;; -- Subscription Handlers ---------------------------------------------------
 
@@ -67,13 +80,29 @@
  :move-result
  (fn [db _] (reaction (get-in @db [:move-result]))))
 
-(register-sub :new-game (fn [db _] db))
-
+(register-sub
+ :player-name
+ (fn [db _] (reaction (get-in @db [:player-name]))))
+              
 ;; -- View Components ---------------------------------------------------------
 
 (defn greeting
   [message]
   [:h2 message])
+
+
+(defn name-input
+  []
+  (let [player-name (subscribe [:player-name])]
+    (fn name-input-render
+      []
+      [:div.ask
+       "Имя: "
+       [:input
+        {:type "text"
+         :value @player-name
+         :on-change #(dispatch
+                      [:name-update (-> % .-target .-value)])}]])))
 
 (defn cell
   [idx]
@@ -101,21 +130,24 @@
 
 (defn new-game
   []
-  [:div.new-game-wrapper
-   [:input.new-game {:type "submit" :value "New Game"
-                     :on-click #(dispatch [:new-game])}]])
+  (let [name (subscribe [:player-name])]
+    (fn []
+      [:div.new-game-wrapper
+       [:input.new-game {:type "submit" :value "New Game"
+                         :on-click #(dispatch [:new-game @name])}]])))
 
 (defn status
   []
-  (let [move (subscribe [:move-result])]
+  (let [move (subscribe [:move-result])
+        name (subscribe [:player-name])]
     (fn []
       [:h3
        (MR/foldMoveResult
         "Занято"
-        #(str "Ходит " (T/show (BL/whoseTurn %)))
+        #(str "Ходит " @name)
         #(GR/playerGameResult
-          (str (T/show T/Player1) " wins!")
-          (str (T/show T/Player2) " wins!")
+          (str "Выиграл " @name "!")
+          (str "Выиграл " (T/show T/Player2) "!")
           "Ничья!"
           (B/getResult %))
         @move)])))
@@ -124,6 +156,7 @@
   []
   [:div
    [greeting "Крестики Нолики"]
+   [name-input]
    [board]
    [status]
    [new-game]])
@@ -138,5 +171,5 @@
                   (js/document.getElementById "app")))
 
 (defn ^:export init []
-  (dispatch-sync [:initialize])
+  (dispatch-sync [:initialize (T/show T/Player1)])
   (client))
