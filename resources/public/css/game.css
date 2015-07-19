@@ -32,6 +32,18 @@ input.new-game {
     color: #222;
 }
 
+.ask {
+    margin-bottom: 20px;
+    font-size: 1.25em;
+    color: #555;
+}
+input[type="text"]:hover {
+    color: #000;
+}
+input[type="text"] {
+    font-size:1em;
+}
+
 .cell {
     text-align: center;
     font-size: 3em;
@@ -75,4 +87,4 @@ input.new-game {
 div {
     border: 1px solid red;
 }
-*/
+/**/

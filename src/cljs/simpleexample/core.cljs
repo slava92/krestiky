@@ -98,7 +98,7 @@
       []
       [:div.ask
        "Имя: "
-       [:input
+       [:input.ask
         {:type "text"
          :value @player-name
          :on-change #(dispatch
