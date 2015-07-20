@@ -67,3 +67,7 @@
 (t/ann show [t/Any -> String])
 (defmulti show clazz)
 (defmethod show :default [x] (abstract "show"))
+
+(defprotocol strategy
+  (first-move [this])
+  (next-move [this board]))

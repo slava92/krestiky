@@ -18,3 +18,7 @@
 (def positions [NW N NE W C E SE S SW])
 
 (defmethod show Position [p] (:pos p))
+
+(def pos-index (zipmap positions (range)))
+
+(defn pos-to-char [pos] (get pos-index pos))
