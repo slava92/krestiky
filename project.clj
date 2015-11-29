@@ -3,26 +3,26 @@
   :url "https://github.com/slava92/krestiky"
   :license {:name "Unlicense"
             :url "http://unlicense.org"}
-  :dependencies [[org.clojure/clojurescript "0.0-3308"]
-                 [org.clojure/clojure "1.7.0-beta2"]
-                 [reagent "0.5.0"]
-                 [re-frame "0.4.1"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [org.clojure/clojurescript "1.7.170"]
+                 [reagent "0.5.1"]
+                 [re-frame "0.5.0"]
                  [com.cemerick/double-check "0.6.1"]]
-  :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.3"]
-            [com.cemerick/clojurescript.test "0.3.3"]
-            [com.cemerick/austin "0.1.6"]]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [com.cemerick/clojurescript.test "0.3.3"]]
 
   :source-paths ["src/cljs"]
   :test-source-paths ["test/cljs"]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
+                                  [figwheel-sidecar "0.5.0-2"]]
+                   :source-paths ["src/dev"]}}
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src/cljs"]
-
-                        :figwheel {:on-jsload "simpleexample.core/client"}
-
+                        :figwheel true
                         :compiler {:main simpleexample.core
                                    :output-to "resources/public/js/compiled/app.js"
                                    :output-dir "resources/public/js/compiled/out"
@@ -47,6 +47,7 @@
                                "target/cljs/testable.js"]}}
 
   :aliases {"units" ["cljsbuild" "test" "unit-tests"]}
-)
+  )
 
-;; (cemerick.austin.repls/exec)
+;; 1. (start) ;; from src/dev/user.clj
+;; 2. (cljs)  ;; from src/dev/user.clj
