@@ -18,7 +18,9 @@
                    :source-paths ["src/dev"]}}
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
+                                    "dev-resources" "figwheel_server.log"
+                                    ".nrepl-port"]
 
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src/cljs"]
