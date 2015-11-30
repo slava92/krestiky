@@ -1,6 +1,5 @@
 (ns example.core
-  (:require [cemerick.cljs.test]
-            [clojure.test.check :as sc]
+  (:require [clojure.test.check :as sc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop])
   (:require-macros [clojure.test.check.clojure-test :refer (defspec)]
@@ -8,6 +7,7 @@
                    [cemerick.cljs.test :refer (is testing deftest test-var
                                                   run-tests)]))
 
+;; javascript '+' accepts non-numbers
 (deftest somewhat-less-wat
   (is (= "{}[]" (+ {} []))))
 
