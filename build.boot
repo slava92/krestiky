@@ -48,10 +48,10 @@
         (test-cljs :js-env :phantom)))
 
 (deftask dev []
-  (comp (serve :dir "out/")
+  (comp (serve :dir "target/")
         (watch)
         (speak)
-        (reload :on-jsload 'simpleexample.core)
+        ;; (reload :on-jsload 'simpleexample.core)
         (cljs-repl)
         (cljs :source-map true :optimizations :none)))
 
