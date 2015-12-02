@@ -4,7 +4,8 @@
             [clojure.test.check.properties :as prop])
   (:require-macros [clojure.test.check.clojure-test :refer (defspec)]
                    [clojure.test.check.properties :refer (for-all)]
-                   [cljs.test :refer (is testing deftest run-tests)]))
+                   [cemerick.cljs.test :refer (is testing deftest test-var
+                                                  run-tests)]))
 
 ;; javascript '+' accepts non-numbers
 (deftest somewhat-less-wat
