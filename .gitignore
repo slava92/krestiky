@@ -1,5 +1,6 @@
 *.class
 /.lein-*
+/.nrepl-history
 /.nrepl-port
 /.repl
 /figwheel_server.log

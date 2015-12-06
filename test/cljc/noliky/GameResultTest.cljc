@@ -1,8 +1,8 @@
 (ns noliky.GameResultTest
   (:require [noliky.GameResult :as G]
             [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :refer-macros (for-all)]
-            [clojure.test.check.clojure-test :refer-macros (defspec)]))
+            [clojure.test.check.properties :refer (for-all)]
+            [clojure.test.check.clojure-test :refer (defspec)]))
 
 (def game-results
   [[true false false G/WinPlayer1]

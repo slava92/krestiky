@@ -13,7 +13,7 @@
     (= Draw result) draw
     (= WinPlayer1 result) pwin1
     (= WinPlayer2 result)  pwin2
-    :else (throw (js/Error. "Error in game design"))))
+    :else (T/error "Error in game design")))
 
 (defn win [p]
   (if (= p T/Player1) WinPlayer1 WinPlayer2))

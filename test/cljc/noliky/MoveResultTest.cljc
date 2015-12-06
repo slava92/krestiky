@@ -2,8 +2,8 @@
   (:require [noliky.MoveResult :as M]
             [noliky.Types :as T]
             [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :refer-macros (for-all)]
-            [clojure.test.check.clojure-test :refer-macros (defspec)]))
+            [clojure.test.check.properties :refer (for-all)]
+            [clojure.test.check.clojure-test :refer (defspec)]))
 
 (def move-results
   [[true false false (T/->PositionOccupied :PositionOccupied)]

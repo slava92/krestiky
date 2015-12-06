@@ -37,7 +37,12 @@
 
 (defrecord TakeBackIsBoard [board type])
 
-(defn abstract [s] (throw (js/Error. (str "abstract " s))))
+
+(defn error [msg]
+  (throw #?(:clj (Exception. msg)
+            :cljs (js/Error. msg))))
+(defn abstract [s]
+  (error (str "abstract " s)))
 (defn undefined [] (abstract "TBI"))
 
 (defmulti show (fn [x] (:type x)))

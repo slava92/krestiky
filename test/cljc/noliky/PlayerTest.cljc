@@ -1,8 +1,8 @@
 (ns noliky.PlayerTest
   (:require [noliky.Player :as P :refer (player1 player2)]
             [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :refer-macros (for-all)]
-            [clojure.test.check.clojure-test :refer-macros (defspec)]))
+            [clojure.test.check.properties :refer (for-all)]
+            [clojure.test.check.clojure-test :refer (defspec)]))
 
 
 (def players (gen/elements [(player1) (player2)]))

@@ -5,10 +5,10 @@
             [noliky.MoveResult :as M]
             [noliky.Types :as T :refer [first-move next-move]]
             [noliky.Strategy :refer [random-moves]]
-            [cljs.test :as t :refer-macros (is deftest)]
+            [clojure.test :as t :refer (is deftest)]
             [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :refer-macros (for-all)]
-            [clojure.test.check.clojure-test :refer-macros (defspec)]))
+            [clojure.test.check.properties :refer (for-all)]
+            [clojure.test.check.clojure-test :refer (defspec)]))
 
 (deftest test-first-move
   (let [board (first-move random-moves)]
