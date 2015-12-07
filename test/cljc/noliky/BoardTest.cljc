@@ -4,7 +4,7 @@
             [noliky.Position :as P]
             [noliky.MoveResult :as M]
             [noliky.Types :as T :refer [first-move next-move]]
-            [noliky.Strategy :refer [random-moves]]
+            [noliky.Blind :refer [random-moves]]
             [clojure.test :as t :refer (is deftest)]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :refer (for-all)]

@@ -7,7 +7,7 @@
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
             [noliky.Player :as Plr]
-            [noliky.Strategy :as S]
+            [noliky.Blind :as Robot]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
                                    register-sub
@@ -20,7 +20,7 @@
   {:player-name (T/show T/Player1)
    :move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
    :board (B/empty-board)
-   :robot S/random-moves})
+   :robot Robot/random-moves})
 
 ;; -- Event Handlers ----------------------------------------------------------
 

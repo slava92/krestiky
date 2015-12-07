@@ -1,4 +1,4 @@
-(ns noliky.Strategy
+(ns noliky.Blind
   (:require [noliky.Board :as B]
             [noliky.BoardLike :as BL]
             [noliky.Position :as P]
