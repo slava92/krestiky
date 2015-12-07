@@ -12,7 +12,9 @@
    [com.cemerick/piggieback     "0.2.1"          :scope "test"]
    [org.clojure/test.check      "0.9.0"          :scope "test"]
    [org.clojure/tools.nrepl     "0.2.12"         :scope "test"]
-   [weasel                      "0.7.0"          :scope "test"]]
+   [weasel                      "0.7.0"          :scope "test"]
+   ;; boot -d boot-deps ancient
+   [boot-deps "0.1.6" :scope "test"]]
  :source-paths   #{"src/cljc" "src/cljs"}
  :resource-paths #{"resources/public"})
 
