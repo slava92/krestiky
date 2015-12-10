@@ -1,7 +1,7 @@
 (set-env!
  :dependencies
  '[
-   [re-frame "0.5.0"]
+   [re-frame "0.6.0"]
    [reagent "0.5.1"]
    [org.clojure/clojure         "1.7.0"]
    [org.clojure/clojurescript   "1.7.189"]
