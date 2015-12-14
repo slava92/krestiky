@@ -6,9 +6,13 @@
             [noliky.GameResult :as G]
             [noliky.MoveResult :as M]
             [noliky.Types :as T]
+            #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s :include-macros true])
             [clojure.set :refer [difference]]))
 
-(defn weigh [strategy move-result]
+(s/defn weigh :- s/Int
+  [strategy :- (s/protocol T/strategy)
+   move-result :- T/MoveResultType]
   (M/foldMoveResult
    nil
    #(assoc
@@ -20,7 +24,7 @@
 ;; (defn win? [move-result]
 ;;   (M/foldMoveResult
 ;;    nil ;; occupied
-;;    (constantly nil) ;; keep playing
+;;    #(constantly nil) ;; keep playing
 ;;    (fn [finished-board] ;; is it a win  for current player?
 ;;      (let [myself (BL/whoseNotTurn finished-board)]
 ;;        (G/gameResult #(= myself %) false (B/getResult finished-board))))
@@ -32,9 +36,11 @@
 (def chaser-moves
   (reify T/strategy
 
+    ;; this -> Board
     (first-move [this]
       (T/first-move S/random-moves))
 
+    ;; this -> Board -> Position
     (next-move [this board]
       (let [attempts (map #(B/--> % board) P/positions)
             weighted (filter some? (map #(weigh this %) attempts))
@@ -44,4 +50,5 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def b1 (T/first-move chaser-moves))
+;; TODO: uncomment it and make to compile
+;; (def b1 (T/first-move chaser-moves))

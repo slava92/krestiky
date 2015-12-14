@@ -5,10 +5,13 @@
             [noliky.MoveResult :as MR]
             [noliky.Player :as Plr]
             [noliky.Position :as Pos :refer [NW N NE E SE S SW W C]]
+            #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s :include-macros true])
             [clojure.set]
             [clojure.string :as str]))
 
-(defmethod T/show :EmptyBoard [eb]
+(s/defmethod ^:always-validate T/show :EmptyBoard :- s/Str
+  [eb :- T/EmptyBoardType]
   ".=?=.=?=.=?=.=?=.=?=.=?=.=?=.=?=.=?=. [ Player 1 to move ]")
 
 ;; class Move from to | from -> to where
@@ -16,11 +19,13 @@
 (defmulti --> (fn [pos board] (:type board)))
 
 ;; instance Move EmptyBoard MoveResult where
-(defmethod --> :EmptyBoard [pos from]
+(s/defmethod ^:always-validate --> :EmptyBoard :- T/KeepPlayingType
+  [pos :- T/PositionType from :- T/EmptyBoardType]
   (T/->KeepPlaying (T/->Board (list [pos T/Player1]) {pos T/Player1} :Board) :KeepPlaying))
 
 ;; instance Move Board MoveResult where
-(defmethod --> :Board [pos {:keys [moves positions] :as bd}]
+(s/defmethod ^:always-validate --> :Board :- T/MoveResultType
+  [pos :- T/PositionType {:keys [moves positions] :as bd}]
   (let [w (BL/whoseTurn bd)
         j (BL/playerAt bd pos)]
     (if (nil? j)
@@ -48,26 +53,33 @@
       (T/->PositionOccupied :PositionOccupied))))
 
 ;; instance Move MoveResult MoveResult where
-(defmethod --> :PositionOccupied [pos mr]
+(s/defmethod ^:always-validate --> :PositionOccupied :- T/MoveResultType
+  [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(defmethod --> :KeepPlaying [pos mr]
+(s/defmethod ^:always-validate --> :KeepPlaying :- T/MoveResultType
+  [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(defmethod --> :GameFinished [pos mr]
+(s/defmethod ^:always-validate --> :GameFinished :- T/MoveResultType
+  [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
 ;; | Return the result of a completed tic-tac-toe game.
-(defn getResult [b] (:gr b))
+(s/defn getResult :- T/GameResultType
+  [b :- T/FinishedBoardType]
+  (:gr b))
 
 (declare showPositionMap)
 
 ;; instance Show Board where
-(defmethod T/show :Board [b]
+(s/defmethod ^:always-validate T/show :Board :- s/Str
+  [b :- T/BoardType]
   (str/join " " [(showPositionMap (:positions b)) "[" (T/show (BL/whoseTurn b)) "to move ]"]))
 
 ;; instance Show FinishedBoard where
-(defmethod T/show :FinishedBoard [fb]
+(s/defmethod ^:always-validate T/show :FinishedBoard :- s/Str
+  [fb :- T/FinishedBoardType]
   (let [summary (GR/gameResult T/show "draw" (:gr fb))]
     summary
     (str/join " " [(showPositionMap (:positions (:b fb))) "[[" summary "]]"])))

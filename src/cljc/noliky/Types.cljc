@@ -24,11 +24,12 @@
 
 (s/defrecord EmptyBoard
     [type :- s/Keyword])
-(def EmpptyBoardType (su/class-schema EmptyBoard))
+(def EmptyBoardType (su/class-schema EmptyBoard))
 
 (s/defrecord Board
-    [moves :- s/Int
-     positions :- [Position]
+    ;; TODO: replace s/Any by actual type (pair?)
+    [moves :- [s/Any]
+     positions :- {Position Player}
      type :- s/Keyword])
 (def BoardType (su/class-schema Board))
 
@@ -74,6 +75,11 @@
      type :- s/Keyword])
 (def GameFinishedType (su/class-schema GameFinished))
 
+(def MoveResultType
+  (s/conditional #(= (:type %) :PositionOccupied) PositionOccupiedType
+                 #(= (:type %) :KeepPlaying) KeepPlayingType
+                 #(= (:type %) :GameFinished) GameFinishedType))
+
 ;; (t/defalias TakenBack (t/U TakeBackIsEmpty TakeBackIsBoard))
 (s/defrecord TakeBackIsEmpty [type :- s/Keyword])
 (def TakeBackIsEmptyType (su/class-schema TakeBackIsEmpty))
@@ -95,6 +101,7 @@
   [x :- PlayerType] (abstract "show"))
 
 (defprotocol strategy
+  ;; this -> Board
   (first-move [this])
+  ;; this -> Board -> Position
   (next-move [this board]))
-

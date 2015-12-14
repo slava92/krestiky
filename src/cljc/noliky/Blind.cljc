@@ -9,10 +9,12 @@
 (def random-moves
   (reify T/strategy
 
+    ;; this -> Board
     (first-move [this]
       (let [pos (rand-nth P/positions)]
         (M/keepPlaying (B/--> pos (B/empty-board)))))
 
+    ;; this -> Board -> Position
     (next-move [this board]
       (let [ops (set (BL/occupiedPositions board))
             aps (set P/positions)]

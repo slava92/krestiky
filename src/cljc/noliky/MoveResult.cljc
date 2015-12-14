@@ -23,10 +23,17 @@
    mr :- T/GameFinishedType]
   (foldMoveResult e kp (constantly e) mr))
 
-;;; !!! Union types here
-(s/defn keepPlaying [mr]
+(s/defn keepPlaying :- s/Any [mr :- T/MoveResultType]
   (foldMoveResult nil identity (constantly nil) mr))
 
-(defmethod T/show :PositionOccupied [_] "*Position already occupied*")
-(defmethod T/show :KeepPlaying [mr] (str "{" (T/show (:board mr)) "}"))
-(defmethod T/show :GameFinished [mr] (str "{{" (T/show (:board mr)) "}}"))
+(s/defmethod ^:always-validate T/show :PositionOccupied :- s/Str
+  [_]
+  "*Position already occupied*")
+
+(s/defmethod ^:always-validate T/show :KeepPlaying :- s/Str
+  [mr :- T/KeepPlayingType]
+  (str "{" (T/show (:board mr)) "}"))
+
+(s/defmethod ^:always-validate T/show :GameFinished :- s/Str
+  [mr :- T/GameFinishedType]
+  (str "{{" (T/show (:board mr)) "}}"))
