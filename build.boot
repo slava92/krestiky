@@ -1,10 +1,11 @@
 (set-env!
  :dependencies
  '[
-   [re-frame "0.6.0"]
-   [reagent "0.5.1"]
+   [re-frame                    "0.6.0"]
+   [reagent                     "0.5.1"]
    [org.clojure/clojure         "1.7.0"]
    [org.clojure/clojurescript   "1.7.189"]
+   [prismatic/schema            "1.0.4"]
    [adzerk/boot-cljs            "1.7.170-3"      :scope "test"]
    [adzerk/boot-cljs-repl       "0.3.0"          :scope "test"]
    [adzerk/boot-reload          "0.4.2"          :scope "test"]

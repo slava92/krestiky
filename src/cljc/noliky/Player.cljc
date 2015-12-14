@@ -1,18 +1,36 @@
 (ns noliky.Player
-  (:require [noliky.Types :as T]))
+  (:require  #?(:clj [schema.core :as s]
+                :cljs [schema.core :as s :include-macros true])
+             [noliky.Types :as T]))
 
-(defn player [a b p] (if (= p T/Player1) a b))
+(s/defn player :- s/Any
+  [a :- s/Any
+   b :- s/Any
+   p :- T/PlayerType]
+  (if (= p T/Player1) a b))
 
-(defn isPlayer1 [p] (player true false p))
+(s/defn isPlayer1 :- s/Bool
+  [p :- T/PlayerType]
+  (player true false p))
 
-(defn isPlayer2 [p] (player false true p))
+(s/defn isPlayer2 :- s/Bool
+  [p :- T/PlayerType]
+  (player false true p))
 
-(defn player1 [] T/Player1)
+(s/defn player1 :- T/PlayerType
+  [] T/Player1)
 
-(defn player2 [] T/Player2)
+(s/defn player2 :- T/PlayerType
+  [] T/Player2)
 
-(defn alternate [p] (player T/Player2 T/Player1 p))
+(s/defn alternate :- T/PlayerType
+  [p :- T/PlayerType]
+  (player T/Player2 T/Player1 p))
 
-(defn toSymbol [p] (player "X" "O" p))
+(s/defn toSymbol :- s/Str
+  [p :- T/PlayerType]
+  (player "X" "O" p))
 
-(defmethod T/show :Player [p] (:name p))
+(s/defmethod ^:always-validate T/show :Player :- s/Str
+  [player :- T/PlayerType]
+  (:name player))

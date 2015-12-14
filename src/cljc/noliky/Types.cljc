@@ -1,52 +1,98 @@
-(ns noliky.Types)
+(ns noliky.Types
+  (:require #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s :include-macros true])
+            [schema.utils :as su]))
 
-(defrecord Player [name type])
-(def Player1 (->Player "Alice" :Player))
-(def Player2 (->Player "Bob" :Player))
-(def Nobody (->Player "Ghost" :Player))
+(s/defrecord Player
+    [name :- s/Str
+     type :- s/Keyword])
+(s/def Player1 :- Player (->Player "Alice" :Player))
+(s/def Player2 :- Player (->Player "Bob" :Player))
+(s/def Nobody :- Player (->Player "Ghost" :Player))
+(def PlayerType (su/class-schema Player))
 
-(defrecord Position [pos type])
+(s/defrecord Position
+    [pos :- s/Str
+     type :- s/Keyword])
+(def PositionType (su/class-schema Position))
 
-(defrecord GameResult [result player type])
+(s/defrecord GameResult
+    [result :- s/Keyword
+     player :- Player
+     type :- s/Keyword])
+(def GameResultType (su/class-schema GameResult))
 
-(defrecord EmptyBoard [type])
+(s/defrecord EmptyBoard
+    [type :- s/Keyword])
+(def EmpptyBoardType (su/class-schema EmptyBoard))
 
-(defrecord Board [moves positions type])
+(s/defrecord Board
+    [moves :- s/Int
+     positions :- [Position]
+     type :- s/Keyword])
+(def BoardType (su/class-schema Board))
 
-(defrecord FinishedBoard [b gr type])
+(s/defrecord FinishedBoard
+    [b :- Board
+     gr :- GameResult
+     type :- s/Keyword])
+(def FinishedBoardType (su/class-schema FinishedBoard))
 
 ;; (t/defalias Unfinished (t/U UnfinishedEmpty UnfinishedBoard))
-(defrecord UnfinishedEmpty [b type])
+(s/defrecord UnfinishedEmpty
+    [b :- Board
+     type :- s/Keyword])
+(def UnfinishedEmptyType (su/class-schema UnfinishedEmpty))
 
-(defrecord UnfinishedBoard [b type])
+(s/defrecord UnfinishedBoard
+    [b :- Board
+     type :- s/Keyword])
+(def UnfinishedBoardType (su/class-schema UnfinishedBoard))
 
 ;; (t/defalias Unempty (t/U UnemptyFinished UnemptyBoard))
-(defrecord UnemptyBoard [b type])
+(s/defrecord UnemptyBoard
+    [b :- Board
+     type :- s/Keyword])
+(def UnemptyBoardType (su/class-schema UnemptyBoard))
 
-(defrecord UnemptyFinished [b type])
+(s/defrecord UnemptyFinished
+    [b :- Board
+     type :- s/Keyword])
+(def UnemptyFinishedType (su/class-schema UnemptyFinished))
 
 ;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
-(defrecord PositionOccupied [type])
+(s/defrecord PositionOccupied [type :- s/Keyword])
+(def PositionOccupiedType (su/class-schema PositionOccupied))
 
-(defrecord KeepPlaying [board type])
+(s/defrecord KeepPlaying
+    [board :- Board
+     type :- s/Keyword])
+(def KeepPlayingType (su/class-schema KeepPlaying))
 
-(defrecord GameFinished [board type])
+(s/defrecord GameFinished
+    [board :- Board
+     type :- s/Keyword])
+(def GameFinishedType (su/class-schema GameFinished))
 
 ;; (t/defalias TakenBack (t/U TakeBackIsEmpty TakeBackIsBoard))
-(defrecord TakeBackIsEmpty[type])
+(s/defrecord TakeBackIsEmpty [type :- s/Keyword])
+(def TakeBackIsEmptyType (su/class-schema TakeBackIsEmpty))
 
-(defrecord TakeBackIsBoard [board type])
+(s/defrecord TakeBackIsBoard
+    [board :- Board
+     type :- s/Keyword])
+(def TakeBackIsBoardType (su/class-schema TakeBackIsBoard))
 
 
-(defn error [msg]
+(s/defn error [msg :- s/Str]
   (throw #?(:clj (Exception. msg)
             :cljs (js/Error. msg))))
-(defn abstract [s]
-  (error (str "abstract " s)))
-(defn undefined [] (abstract "TBI"))
+(s/defn abstract [s :- s/Any] (error (str "abstract " s)))
+(s/defn undefined [] (abstract "TBI"))
 
 (defmulti show (fn [x] (:type x)))
-(defmethod show :default [x] (abstract "show"))
+(s/defmethod ^:always-validate show :default :- s/Str
+  [x :- PlayerType] (abstract "show"))
 
 (defprotocol strategy
   (first-move [this])
