@@ -4,7 +4,7 @@
             [noliky.GameResult :as GR]
             [noliky.MoveResult :as MR]
             [noliky.Player :as Plr]
-            [noliky.Position :as Pos :refer [NW N NE E SE S SW W C]]
+            [noliky.Position :as P] ;;  :refer [NW N NE E SE S SW W C]]
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])
             [clojure.set]
@@ -21,36 +21,38 @@
 ;; instance Move EmptyBoard MoveResult where
 (s/defmethod ^:always-validate --> :EmptyBoard :- T/KeepPlayingType
   [pos :- T/PositionType from :- T/EmptyBoardType]
-  (T/->KeepPlaying (T/->Board (list [pos T/Player1]) {pos T/Player1} :Board) :KeepPlaying))
+  (T/->KeepPlaying
+   (T/->Board [[pos T/Player1]] {pos T/Player1} :Board)
+   :KeepPlaying))
 
 ;; instance Move Board MoveResult where
+;; TODO: add schema to :keys [moves positions]
 (s/defmethod ^:always-validate --> :Board :- T/MoveResultType
   [pos :- T/PositionType {:keys [moves positions] :as bd}]
   (let [w (BL/whoseTurn bd)
         j (BL/playerAt bd pos)]
-    (if (nil? j)
+    (if j
+      (T/->PositionOccupied :PositionOccupied)
       (let [m' (assoc positions pos w)
             b' (T/->Board (apply list (cons [pos w] moves)) m' :Board)
-            wins [[NW W  SW] [N  C  S ]
-                  [NE E  SE] [NW N  NE]
-                  [W  C  E ] [SW S  SE]
-                  [NW C  SE] [SW C  NE]]
+            wins [[P/NW P/W  P/SW] [P/N  P/C  P/S ]
+                  [P/NE P/E  P/SE] [P/NW P/N  P/NE]
+                  [P/W  P/C  P/E ] [P/SW P/S  P/SE]
+                  [P/NW P/C  P/SE] [P/SW P/C  P/NE]]
             pos->plrs
-            (fn [diag]
-              (map (fn [p] (get m' p))
-                   diag))
+            (fn [diag] (map #(get m' %) diag))
             allEq
             (fn [diag]
               (let [pls (pos->plrs diag)
                     same? (distinct pls)]
                 (and (= 1 (count same?)) (not= nil (first same?)))))
             isWin (not= nil (some true? (map allEq wins)))
-            isDraw (= (count (keys m')) (count Pos/positions))]
+            isDraw (= (count (keys m')) (count P/positions))]
+        (clojure.pprint/pprint [isWin isDraw])
         (cond
           isWin (T/->GameFinished (T/->FinishedBoard b' (GR/win w) :FinishedBoard) :GameFinished)
           isDraw (T/->GameFinished (T/->FinishedBoard b' (GR/draw) :FinishedBoard) :GameFinished)
-          :else (T/->KeepPlaying b' :KeepPlaying)))
-      (T/->PositionOccupied :PositionOccupied))))
+          :else (T/->KeepPlaying b' :KeepPlaying))))))
 
 ;; instance Move MoveResult MoveResult where
 (s/defmethod ^:always-validate --> :PositionOccupied :- T/MoveResultType
@@ -86,35 +88,44 @@
 
 ;; | Shows a board using ASCII notation and substituting the returned string for each position.
 ;;   k ^ The function returning the string to substitute each position.
-(defn showEachPosition [k]
+(s/defn showEachPosition :- s/Str
+  [k :- (s/=> T/PositionType s/Str)]
   (let [z ".===.===.===."
         each [z
-              (str "| " (k NW) " | " (k N ) " | " (k NE) " |")
+              (str "| " (k P/NW) " | " (k P/N ) " | " (k P/NE) " |")
               z
-              (str "| " (k W ) " | " (k C ) " | " (k E ) " |")
+              (str "| " (k P/W ) " | " (k P/C ) " | " (k P/E ) " |")
               z
-              (str "| " (k SW) " | " (k S ) " | " (k SE) " |")
+              (str "| " (k P/SW) " | " (k P/S ) " | " (k P/SE) " |")
               z]]
     (str/join "\n" each)))
 
 ;;   k ^ The function returning the string to substitute each position.
-(defn showEachPositionFlat [k]
-  (str "1 2 3 4 5 6 7 8 9\n" (str/join " " (map k Pos/positions))))
+(s/defn showEachPositionFlat :- s/Str
+  [k :- (s/=> T/PositionType s/Str)]
+  (str "1 2 3 4 5 6 7 8 9\n" (str/join " " (map k P/positions))))
 
-(defn showLinePosition [k]
-  (str "|" (k NW) (k N) (k NE) "|" (k W) (k C) (k E) "|" (k SW) (k S) (k SE) "|"))
+(s/defn showLinePosition :- s/Str
+  [k :- (s/=> T/PositionType s/Str)]
+  (str "|" (k P/NW) (k P/N) (k P/NE) "|" (k P/W) (k P/C) (k P/E) "|" (k P/SW) (k P/S) (k P/SE) "|"))
 
 ;; -- not exported
-(defn pos [m d p]
-  (let [s (get m p)] (if (nil? s) d (Plr/toSymbol s))))
+(s/defn pos :- s/Str
+  [m :- {T/PositionType T/PlayerType}
+   d :- s/Str
+   p :- T/PositionType]
+  (let [s (get m p)] (if s (Plr/toSymbol s) d)))
 
-(defn showPositionMap [m]
-  (str ".=" (pos m "?" NW) "=.=" (pos m "?" N) "=.=" (pos m "?" NE)
-       "=.=" (pos m "?" W) "=.=" (pos m "?" C) "=.=" (pos m "?" E)
-       "=.=" (pos m "?" SW) "=.=" (pos m "?" S) "=.=" (pos m "?" SE) "=."))
+(s/defn showPositionMap :- s/Str
+  [m :- {T/PositionType T/PlayerType}]
+  (str ".="  (pos m "?" P/NW) "=.=" (pos m "?" P/N) "=.=" (pos m "?" P/NE)
+       "=.=" (pos m "?" P/W)  "=.=" (pos m "?" P/C) "=.=" (pos m "?" P/E)
+       "=.=" (pos m "?" P/SW) "=.=" (pos m "?" P/S) "=.=" (pos m "?" P/SE) "=."))
 
 ;; instance BoardLike EmptyBoard where
-(defn empty-board [] (T/->EmptyBoard :EmptyBoard))
+(s/defn empty-board :- T/EmptyBoardType
+  []
+  (T/->EmptyBoard :EmptyBoard))
 (defmethod BL/whoseTurn :EmptyBoard [_] T/Player1)
 (defmethod BL/isEmpty :EmptyBoard [_] true)
 (defmethod BL/occupiedPositions :EmptyBoard [_] #{})
@@ -262,10 +273,10 @@
 
 (defn tryit []
   (->> (empty-board)
-       (--> C)
-       (--> E)
-       (--> NE)
-       (--> SE)
-       (--> SW)
-       (--> W)
+       (--> P/C)
+       (--> P/E)
+       (--> P/NE)
+       (--> P/SE)
+       (--> P/SW)
+       ;; (--> P/W)
        (T/show)))

@@ -71,7 +71,7 @@
 (def KeepPlayingType (su/class-schema KeepPlaying))
 
 (s/defrecord GameFinished
-    [board :- Board
+    [board :- FinishedBoardType
      type :- s/Keyword])
 (def GameFinishedType (su/class-schema GameFinished))
 
