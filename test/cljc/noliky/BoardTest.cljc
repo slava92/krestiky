@@ -5,10 +5,15 @@
             [noliky.MoveResult :as M]
             [noliky.Types :as T :refer [first-move next-move]]
             [noliky.Blind :refer [random-moves]]
+            #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s :include-macros true])
+            [schema.test :as st]
             [clojure.test :as t :refer (is deftest)]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :refer (for-all)]
             [clojure.test.check.clojure-test :refer (defspec)]))
+
+(t/use-fixtures :once st/validate-schemas)
 
 (deftest test-first-move
   (let [board (first-move random-moves)]

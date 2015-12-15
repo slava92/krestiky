@@ -27,8 +27,8 @@
 (def EmptyBoardType (su/class-schema EmptyBoard))
 
 (s/defrecord Board
-    ;; TODO: replace s/Any by actual type (pair?)
-    [moves :- [s/Any]
+    [moves :- [(s/pair PositionType "position"
+                       PlayerType "player")]
      positions :- {Position Player}
      type :- s/Keyword])
 (def BoardType (su/class-schema Board))
