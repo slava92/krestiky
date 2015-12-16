@@ -1,6 +1,7 @@
 (ns noliky.BoardTest
   (:require [noliky.Board :as B]
             [noliky.BoardLike :as BL]
+            [noliky.Player :as PR]
             [noliky.Position :as P]
             [noliky.MoveResult :as M]
             [noliky.Types :as T :refer [first-move next-move]]
@@ -17,10 +18,10 @@
 
 (deftest test-first-move
   (let [board (first-move random-moves)]
-    (is (= T/Player2 (BL/whoseTurn board)))
+    (is (= PR/Player2 (BL/whoseTurn board)))
     (is (= 1 (count (BL/occupiedPositions board))))
     (is (false? (BL/isEmpty board)))
-    (is (= T/Player1 (BL/playerAt board (first (BL/occupiedPositions board)))))))
+    (is (= PR/Player1 (BL/playerAt board (first (BL/occupiedPositions board)))))))
 
 (defspec test-second-move
   100
@@ -32,4 +33,4 @@
       (= 2 (count (BL/occupiedPositions sb)))
       (not= (first (BL/occupiedPositions sb))
             (last (BL/occupiedPositions sb)))
-      (= T/Player1 (BL/whoseTurn sb))))))
+      (= PR/Player1 (BL/whoseTurn sb))))))

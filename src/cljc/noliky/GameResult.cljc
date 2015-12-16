@@ -1,14 +1,15 @@
 (ns noliky.GameResult
   (:require [noliky.Types :as T]
+            [noliky.Player :as P]
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])))
 
 (s/def Draw :- T/GameResultType
-  (T/->GameResult :Draw T/Nobody :GameResult))
+  (T/->GameResult :Draw P/Nobody :GameResult))
 (s/def WinPlayer1 :- T/GameResultType
-  (T/->GameResult :Win T/Player1 :GameResult))
+  (T/->GameResult :Win P/Player1 :GameResult))
 (s/def WinPlayer2 :- T/GameResultType
-  (T/->GameResult :Win T/Player2 :GameResult))
+  (T/->GameResult :Win P/Player2 :GameResult))
 
 (s/defn gameResult :- s/Any
   [pwin :- (s/=> T/PlayerType s/Any)
@@ -26,7 +27,7 @@
 
 (s/defn win :- T/GameResultType
   [p :- T/PlayerType]
-  (if (= p T/Player1) WinPlayer1 WinPlayer2))
+  (if (= p P/Player1) WinPlayer1 WinPlayer2))
 
 (s/defn player1Wins :- T/GameResultType []
   WinPlayer1)

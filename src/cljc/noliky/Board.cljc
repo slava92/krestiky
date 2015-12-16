@@ -3,12 +3,21 @@
             [noliky.BoardLike :as BL]
             [noliky.GameResult :as GR]
             [noliky.MoveResult :as MR]
-            [noliky.Player :as Plr]
+            [noliky.Player :as PR]
             [noliky.Position :as P] ;;  :refer [NW N NE E SE S SW W C]]
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])
             [clojure.set]
             [clojure.string :as str]))
+
+(s/defn empty-board :- T/EmptyBoardType []
+  (T/->EmptyBoard :- :EmptyBoard))
+
+(s/defn board :- T/BoardType [moves positions]
+  (T/->Board moves positions :Board))
+
+(s/defn finished-board :- T/FinishedBoardType [board game-result]
+  (T/->FinishedBoard board game-result :FinishedBoard))
 
 (s/defmethod ^:always-validate T/show :EmptyBoard :- s/Str
   [eb :- T/EmptyBoardType]
@@ -22,7 +31,7 @@
 (s/defmethod ^:always-validate --> :EmptyBoard :- T/KeepPlayingType
   [pos :- T/PositionType from :- T/EmptyBoardType]
   (T/->KeepPlaying
-   (T/->Board [[pos T/Player1]] {pos T/Player1} :Board)
+   (T/->Board [[pos PR/Player1]] {pos PR/Player1} :Board)
    :KeepPlaying))
 
 ;; instance Move Board MoveResult where
@@ -113,7 +122,7 @@
   [m :- {T/PositionType T/PlayerType}
    d :- s/Str
    p :- T/PositionType]
-  (let [s (get m p)] (if s (Plr/toSymbol s) d)))
+  (let [s (get m p)] (if s (PR/toSymbol s) d)))
 
 (s/defn showPositionMap :- s/Str
   [m :- {T/PositionType T/PlayerType}]
@@ -125,7 +134,7 @@
 (s/defn empty-board :- T/EmptyBoardType
   []
   (T/->EmptyBoard :EmptyBoard))
-(defmethod BL/whoseTurn :EmptyBoard [_] T/Player1)
+(defmethod BL/whoseTurn :EmptyBoard [_] PR/Player1)
 (defmethod BL/isEmpty :EmptyBoard [_] true)
 (defmethod BL/occupiedPositions :EmptyBoard [_] #{})
 (defmethod BL/moves :EmptyBoard [_] 0)
@@ -140,7 +149,7 @@
 ;; instance BoardLike Board where
 (defmethod BL/whoseTurn :Board [b]
   (let [last-move (first (:moves b))]
-    (if (nil? last-move) T/Player1 (Plr/alternate (second last-move)))))
+    (if (nil? last-move) PR/Player1 (PR/alternate (second last-move)))))
 (defmethod BL/isEmpty :Board [_] false)
 (defmethod BL/occupiedPositions :Board [b] (set (keys (:positions b))))
 (defmethod BL/moves :Board [b] (count (:positions b)))
@@ -164,7 +173,7 @@
     (showLinePosition (fn [p] (pos poss "." p)))))
 
 ;; instance BoardLike FinishedBoard where
-(defmethod BL/whoseTurn :FinishedBoard [_] T/Nobody)
+(defmethod BL/whoseTurn :FinishedBoard [_] PR/Nobody)
 (defmethod BL/isEmpty :FinishedBoard [fb] (BL/isEmpty (:b fb)))
 (defmethod BL/occupiedPositions :FinishedBoard [fb] (BL/occupiedPositions (:b fb)))
 (defmethod BL/moves :FinishedBoard [fb] (BL/moves (:b fb)))

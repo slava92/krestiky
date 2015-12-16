@@ -1,5 +1,6 @@
 (ns noliky.MoveResultTest
-  (:require [noliky.MoveResult :as M]
+  (:require [noliky.Board :as B]
+            [noliky.MoveResult :as M]
             [noliky.GameResult :as G]
             [noliky.Types :as T]
             #?(:clj [schema.core :as s]
@@ -12,11 +13,11 @@
 
 (t/use-fixtures :once st/validate-schemas)
 
-(def dumb-board (T/board [] {}))
+(def dumb-board (B/board [] {}))
 (def move-results
-  [[true false false (T/position-occupied)]
-   [false true false (T/keep-playing dumb-board)]
-   [false false true (T/game-finished (T/finished-board dumb-board G/Draw))]])
+  [[true false false (M/position-occupied)]
+   [false true false (M/keep-playing dumb-board)]
+   [false false true (M/game-finished (B/finished-board dumb-board G/Draw))]])
 
 (defspec move-result-fold
   100

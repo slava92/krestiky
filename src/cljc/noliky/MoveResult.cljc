@@ -3,6 +3,17 @@
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])))
 
+(s/defn position-occupied :- T/PositionOccupiedType []
+  (T/->PositionOccupied :PositionOccupied))
+
+(s/defn keep-playing :- T/KeepPlayingType
+  [board :- T/BoardType]
+  (T/->KeepPlaying board :KeepPlaying))
+
+(s/defn game-finished :- T/GameFinishedType
+  [board :- T/FinishedBoardType]
+  (T/->GameFinished board :GameFinished))
+
 (defmulti foldMoveResult
   (fn [occ kp gf mr] (:type mr)))
 
