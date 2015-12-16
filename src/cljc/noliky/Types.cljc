@@ -6,10 +6,13 @@
 (s/defrecord Player
     [name :- s/Str
      type :- s/Keyword])
-(s/def Player1 :- Player (->Player "Alice" :Player))
-(s/def Player2 :- Player (->Player "Bob" :Player))
-(s/def Nobody :- Player (->Player "Ghost" :Player))
 (def PlayerType (su/class-schema Player))
+(s/defn player :- PlayerType
+  [name]
+  (->Player name :Player))
+(s/def Player1 :- PlayerType (player "Alice"))
+(s/def Player2 :- PlayerType (player "Bob"))
+(s/def Nobody :- PlayerType (player "Ghost"))
 
 (s/defrecord Position
     [pos :- s/Str
@@ -25,6 +28,8 @@
 (s/defrecord EmptyBoard
     [type :- s/Keyword])
 (def EmptyBoardType (su/class-schema EmptyBoard))
+(s/defn empty-board :- EmptyBoardType []
+  (->EmptyBoard :- :EmptyBoard))
 
 (s/defrecord Board
     [moves :- [(s/pair PositionType "position"
@@ -32,12 +37,17 @@
      positions :- {Position Player}
      type :- s/Keyword])
 (def BoardType (su/class-schema Board))
+(s/defn board :- BoardType [moves positions]
+  (->Board moves positions :Board))
+
 
 (s/defrecord FinishedBoard
     [b :- Board
      gr :- GameResult
      type :- s/Keyword])
 (def FinishedBoardType (su/class-schema FinishedBoard))
+(s/defn finished-board :- FinishedBoardType [board game-result]
+  (->FinishedBoard board game-result :FinishedBoard))
 
 ;; (t/defalias Unfinished (t/U UnfinishedEmpty UnfinishedBoard))
 (s/defrecord UnfinishedEmpty
@@ -64,16 +74,24 @@
 ;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
 (s/defrecord PositionOccupied [type :- s/Keyword])
 (def PositionOccupiedType (su/class-schema PositionOccupied))
+(s/defn position-occupied :- PositionOccupiedType []
+  (->PositionOccupied :PositionOccupied))
 
 (s/defrecord KeepPlaying
     [board :- Board
      type :- s/Keyword])
 (def KeepPlayingType (su/class-schema KeepPlaying))
+(s/defn keep-playing :- KeepPlayingType
+  [board :- BoardType]
+  (->KeepPlaying board :KeepPlaying))
 
 (s/defrecord GameFinished
     [board :- FinishedBoardType
      type :- s/Keyword])
 (def GameFinishedType (su/class-schema GameFinished))
+(s/defn game-finished :- GameFinishedType
+  [board :- FinishedBoardType]
+  (->GameFinished board :GameFinished))
 
 (def MoveResultType
   (s/conditional #(= (:type %) :PositionOccupied) PositionOccupiedType

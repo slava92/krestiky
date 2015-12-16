@@ -48,7 +48,6 @@
                 (and (= 1 (count same?)) (not= nil (first same?)))))
             isWin (not= nil (some true? (map allEq wins)))
             isDraw (= (count (keys m')) (count P/positions))]
-        (clojure.pprint/pprint [isWin isDraw])
         (cond
           isWin (T/->GameFinished (T/->FinishedBoard b' (GR/win w) :FinishedBoard) :GameFinished)
           isDraw (T/->GameFinished (T/->FinishedBoard b' (GR/draw) :FinishedBoard) :GameFinished)
@@ -278,5 +277,4 @@
        (--> P/NE)
        (--> P/SE)
        (--> P/SW)
-       ;; (--> P/W)
-       (T/show)))
+       (clojure.pprint/pprint)))

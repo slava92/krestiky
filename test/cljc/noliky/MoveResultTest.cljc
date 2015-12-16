@@ -12,10 +12,11 @@
 
 (t/use-fixtures :once st/validate-schemas)
 
+(def dumb-board (T/board [] {}))
 (def move-results
-  [[true false false (T/->PositionOccupied :PositionOccupied)]
-   [false true false (T/->KeepPlaying (T/->Board [] {} :Board) :KeepPlaying)]
-   [false false true (T/->GameFinished (T/->Board [] {} :Board) :GameFinished)]])
+  [[true false false (T/position-occupied)]
+   [false true false (T/keep-playing dumb-board)]
+   [false false true (T/game-finished (T/finished-board dumb-board G/Draw))]])
 
 (defspec move-result-fold
   100
