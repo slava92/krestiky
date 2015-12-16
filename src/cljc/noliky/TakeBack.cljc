@@ -21,7 +21,8 @@
      :TakeBackIsBoard)))
 
 ;; instance TakeBack Board TakenBack where
-(defmethod takeBack :Board [board]
+(s/defmethod takeBack :Board :- T/TakenBackType
+  [board :- T/BoardType]
   (if (= 1 (count (:moves board)))
     (T/->TakeBackIsEmpty :TakeBackIsEmpty)
     (let [pos-plr (first (:moves board))
@@ -37,8 +38,12 @@
 (defmulti foldTakenBack
   (fn [a fb tb] (:type tb)))
 
-(defmethod foldTakenBack :TakeBackIsEmpty [e _ tb] e)
-(defmethod foldTakenBack :TakeBackIsBoard [_ k tb] (k (:board tb)))
+(s/defmethod foldTakenBack :TakeBackIsEmpty :- s/Any
+  [e _ tb :- T/TakeBackIsEmptyType] e)
+(s/defmethod foldTakenBack :TakeBackIsBoard :- s/Any
+  [_ k tb :- T/TakeBackIsBoardType]
+  (k (:board tb)))
 
-(defn takenBackBoard [tb]
+(s/defn takenBackBoard :- T/UnfinishedType
+  [tb :- T/TakenBackType]
   (foldTakenBack nil (fn [b] b) tb))
