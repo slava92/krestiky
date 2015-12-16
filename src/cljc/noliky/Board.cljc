@@ -35,9 +35,9 @@
    :KeepPlaying))
 
 ;; instance Move Board MoveResult where
-;; TODO: add schema to :keys [moves positions]
 (s/defmethod ^:always-validate --> :Board :- T/MoveResultType
-  [pos :- T/PositionType {:keys [moves positions] :as bd}]
+  [pos :- T/PositionType
+   {:keys [moves positions] :as bd} :- T/BoardType]
   (let [w (BL/whoseTurn bd)
         j (BL/playerAt bd pos)]
     (if j

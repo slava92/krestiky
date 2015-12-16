@@ -1,12 +1,15 @@
 (ns noliky.TakeBack
-  (:require [noliky.Types :as T]))
+  (:require [noliky.Types :as T]
+            #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s :include-macros true])))
 
 ;; class TakeBack to from | to -> from where
 ;;   takeBack :: to -> from
 (defmulti takeBack :type)
 
 ;; instance TakeBack FinishedBoard TakenBack where
-(defmethod takeBack :FinishedBoard [{:keys [b]}]
+(s/defmethod takeBack :FinishedBoard :- T/TakeBackIsBoardType
+  [{:keys [b]} {:b T/BoardType}]
   (let [pos-plr (first (:moves b))
         pos (if (nil? pos-plr)
               (T/abstract "Broken invariant: board-in-play with empty move list. This is a program bug.")

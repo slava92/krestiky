@@ -23,9 +23,10 @@
     [type :- s/Keyword])
 (def EmptyBoardType (su/class-schema EmptyBoard))
 
+(def MoveType (s/pair PositionType "position"
+                      PlayerType "player"))
 (s/defrecord Board
-    [moves :- [(s/pair PositionType "position"
-                       PlayerType "player")]
+    [moves :- [MoveType]
      positions :- {Position Player}
      type :- s/Keyword])
 (def BoardType (su/class-schema Board))
@@ -47,6 +48,10 @@
      type :- s/Keyword])
 (def UnfinishedBoardType (su/class-schema UnfinishedBoard))
 
+(def UnfinishedType
+  (s/conditional #(= (:type %) :UnfinishedEmpty) UnfinishedEmptyType
+                 #(= (:type %) :UnfinishedBoard) UnfinishedBoardType))
+
 ;; (t/defalias Unempty (t/U UnemptyFinished UnemptyBoard))
 (s/defrecord UnemptyBoard
     [b :- Board
@@ -57,6 +62,10 @@
     [b :- Board
      type :- s/Keyword])
 (def UnemptyFinishedType (su/class-schema UnemptyFinished))
+
+(def UnemptyType
+  (s/conditional #(= (:type %) :UnemptyBoard) UnemptyBoardType
+                 #(= (:type %) :UnemptyFinished) UnemptyFinishedType))
 
 ;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
 (s/defrecord PositionOccupied [type :- s/Keyword])
@@ -86,6 +95,15 @@
      type :- s/Keyword])
 (def TakeBackIsBoardType (su/class-schema TakeBackIsBoard))
 
+(def TakenBackType
+  (s/conditional #(= (:type %) :TakeBackIsEmpty) TakeBackIsEmptyType
+                 #(= (:type %) :TakeBackIsBoard) TakeBackIsBoardType))
+
+(defprotocol strategy
+  ;; this -> Board
+  (first-move [this])
+  ;; this -> Board -> Position
+  (next-move [this board]))
 
 (s/defn error [msg :- s/Str]
   (throw #?(:clj (Exception. msg)
@@ -96,9 +114,3 @@
 (defmulti show (fn [x] (:type x)))
 (s/defmethod ^:always-validate show :default :- s/Str
   [x :- PlayerType] (abstract "show"))
-
-(defprotocol strategy
-  ;; this -> Board
-  (first-move [this])
-  ;; this -> Board -> Position
-  (next-move [this board]))
