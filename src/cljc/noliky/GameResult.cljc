@@ -18,7 +18,8 @@
   (if (= (:result gr) :Win) (pwin (:player gr)) draw))
 
 (s/defn playerGameResult :- s/Any
-  [pwin1 :- s/Any  pwin2 :- s/Any  draw :- s/Any result :- T/GameResultType]
+  [pwin1 :- s/Any  pwin2 :- s/Any  draw :- s/Any
+   result :- T/GameResultType]
   (cond
     (= Draw result) draw
     (= WinPlayer1 result) pwin1
@@ -38,11 +39,14 @@
 (s/defn draw :- T/GameResultType []
   Draw)
 
-(s/defn isPlayer1Wins :- s/Bool [gr :- T/GameResultType]
+(s/defn isPlayer1Wins :- s/Bool
+  [gr :- T/GameResultType]
   (playerGameResult true false false gr))
 
-(s/defn isPlayer2Wins :- s/Bool [gr :- T/GameResultType]
+(s/defn isPlayer2Wins :- s/Bool
+  [gr :- T/GameResultType]
   (playerGameResult false true false gr))
 
-(s/defn isDraw :- s/Bool [gr :- T/GameResultType]
+(s/defn isDraw :- s/Bool
+  [gr :- T/GameResultType]
   (playerGameResult false false true gr))

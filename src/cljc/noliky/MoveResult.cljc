@@ -34,7 +34,8 @@
    mr :- T/GameFinishedType]
   (foldMoveResult e kp (constantly e) mr))
 
-(s/defn keepPlaying :- s/Any [mr :- T/MoveResultType]
+(s/defn keepPlaying :- s/Any
+  [mr :- T/MoveResultType]
   (foldMoveResult nil identity (constantly nil) mr))
 
 (s/defmethod ^:always-validate T/show :PositionOccupied :- s/Str

@@ -4,7 +4,7 @@
             [noliky.GameResult :as GR]
             [noliky.MoveResult :as MR]
             [noliky.Player :as PR]
-            [noliky.Position :as P] ;;  :refer [NW N NE E SE S SW W C]]
+            [noliky.Position :as P]
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])
             [clojure.set]
@@ -134,6 +134,7 @@
 (s/defn empty-board :- T/EmptyBoardType
   []
   (T/->EmptyBoard :EmptyBoard))
+
 (defmethod BL/whoseTurn :EmptyBoard [_] PR/Player1)
 (defmethod BL/isEmpty :EmptyBoard [_] true)
 (defmethod BL/occupiedPositions :EmptyBoard [_] #{})
