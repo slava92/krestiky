@@ -55,3 +55,7 @@
 ;; | Show the board using a single line.
 (defmulti showLine (fn [b] (:type b)))
 (defmethod showLine :default [b] (T/abstract "showLine"))
+
+;; ! Show the board as compact string
+(defmulti showBlock (fn [b] (:type b)))
+(defmethod showBlock :default [b] (T/abstract "showBlock"))

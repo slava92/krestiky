@@ -10,9 +10,6 @@
             [clojure.set]
             [clojure.string :as str]))
 
-(s/defn empty-board :- T/EmptyBoardType []
-  (T/->EmptyBoard :- :EmptyBoard))
-
 (s/defn board :- T/BoardType [moves positions]
   (T/->Board moves positions :Board))
 
@@ -129,6 +126,25 @@
   (str ".="  (pos m "?" P/NW) "=.=" (pos m "?" P/N) "=.=" (pos m "?" P/NE)
        "=.=" (pos m "?" P/W)  "=.=" (pos m "?" P/C) "=.=" (pos m "?" P/E)
        "=.=" (pos m "?" P/SW) "=.=" (pos m "?" P/S) "=.=" (pos m "?" P/SE) "=."))
+
+(s/defmethod ^:always-validate BL/showBlock :EmptyBoard :- s/Str
+  [b :- T/EmptyBoardType]
+  "00")
+
+(s/defmethod ^:always-validate BL/showBlock :Board :- s/Str
+  [b :- T/BoardType]
+  (let [m (:positions b)]
+    (str/join
+    "" (map-indexed
+        (fn [idx itm]
+          (if (pos m nil itm)
+            (str idx (pos m nil itm))
+            ""))
+        P/positions))))
+
+(s/defmethod ^:always-validate BL/showBlock :FinishedBoard :- s/Str
+  [b :- T/FinishedBoardType]
+  (BL/showBlock (:b b)))
 
 ;; instance BoardLike EmptyBoard where
 (s/defn empty-board :- T/EmptyBoardType
@@ -286,5 +302,4 @@
        (--> P/E)
        (--> P/NE)
        (--> P/SE)
-       (--> P/SW)
-       (clojure.pprint/pprint)))
+       (--> P/SW)))
