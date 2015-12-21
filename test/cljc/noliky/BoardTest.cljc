@@ -5,7 +5,7 @@
             [noliky.Position :as P]
             [noliky.MoveResult :as M]
             [noliky.Types :as T :refer [first-move next-move]]
-            [noliky.Blind :refer [random-moves]]
+            [noliky.Blind :refer [deep-thought]]
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])
             [schema.test :as st]
@@ -17,7 +17,7 @@
 (t/use-fixtures :once st/validate-schemas)
 
 (deftest test-first-move
-  (let [board (first-move random-moves)]
+  (let [board (first-move deep-thought)]
     (is (= PR/Player2 (BL/whoseTurn board)))
     (is (= 1 (count (BL/occupiedPositions board))))
     (is (false? (BL/isEmpty board)))
@@ -27,8 +27,8 @@
   100
   (for-all
    [gen/nat]
-   (let [fb (first-move random-moves)
-         sb (M/keepPlaying (B/--> (next-move random-moves fb) fb))]
+   (let [fb (first-move deep-thought)
+         sb (M/keepPlaying (B/--> (next-move deep-thought fb) fb))]
      (and
       (= 2 (count (BL/occupiedPositions sb)))
       (not= (first (BL/occupiedPositions sb))

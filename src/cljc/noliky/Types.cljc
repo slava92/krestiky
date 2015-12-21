@@ -23,13 +23,16 @@
     [type :- s/Keyword])
 (def EmptyBoardType (su/class-schema EmptyBoard))
 
-(def MoveType (s/pair PositionType "position"
-                      PlayerType "player"))
+(def MoveType (s/pair PositionType "position" PlayerType "player"))
+
 (s/defrecord Board
     [moves :- [MoveType]
      positions :- {Position Player}
      type :- s/Keyword])
 (def BoardType (su/class-schema Board))
+(def NotFinishedBoardType
+  (s/conditional #(= (:type %) :EmptyBoard) EmptyBoardType
+                 #(= (:type %) :Board) BoardType))
 
 (s/defrecord FinishedBoard
     [b :- Board
@@ -37,42 +40,12 @@
      type :- s/Keyword])
 (def FinishedBoardType (su/class-schema FinishedBoard))
 
-;; (t/defalias Unfinished (t/U UnfinishedEmpty UnfinishedBoard))
-(s/defrecord UnfinishedEmpty
-    [b :- Board
-     type :- s/Keyword])
-(def UnfinishedEmptyType (su/class-schema UnfinishedEmpty))
-
-(s/defrecord UnfinishedBoard
-    [b :- Board
-     type :- s/Keyword])
-(def UnfinishedBoardType (su/class-schema UnfinishedBoard))
-
-(def UnfinishedType
-  (s/conditional #(= (:type %) :UnfinishedEmpty) UnfinishedEmptyType
-                 #(= (:type %) :UnfinishedBoard) UnfinishedBoardType))
-
-;; (t/defalias Unempty (t/U UnemptyFinished UnemptyBoard))
-(s/defrecord UnemptyBoard
-    [b :- Board
-     type :- s/Keyword])
-(def UnemptyBoardType (su/class-schema UnemptyBoard))
-
-(s/defrecord UnemptyFinished
-    [b :- Board
-     type :- s/Keyword])
-(def UnemptyFinishedType (su/class-schema UnemptyFinished))
-
-(def UnemptyType
-  (s/conditional #(= (:type %) :UnemptyBoard) UnemptyBoardType
-                 #(= (:type %) :UnemptyFinished) UnemptyFinishedType))
-
 ;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
 (s/defrecord PositionOccupied [type :- s/Keyword])
 (def PositionOccupiedType (su/class-schema PositionOccupied))
 
 (s/defrecord KeepPlaying
-    [board :- Board
+    [board :- NotFinishedBoardType
      type :- s/Keyword])
 (def KeepPlayingType (su/class-schema KeepPlaying))
 

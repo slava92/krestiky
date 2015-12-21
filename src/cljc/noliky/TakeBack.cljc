@@ -44,6 +44,6 @@
   [_ k tb :- T/TakeBackIsBoardType]
   (k (:board tb)))
 
-(s/defn takenBackBoard :- T/UnfinishedType
+(s/defn takenBackBoard :- T/NotFinishedBoardType
   [tb :- T/TakenBackType]
   (foldTakenBack nil (fn [b] b) tb))

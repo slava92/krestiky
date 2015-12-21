@@ -21,7 +21,7 @@
   [occ :- s/Any _ _ _] occ)
 
 (s/defmethod ^:always-validate foldMoveResult :KeepPlaying :- s/Any
-  [_ kp :- (s/=> T/BoardType s/Any) _ mr :- T/KeepPlayingType]
+  [_ kp :- (s/=> T/NotFinishedBoardType s/Any) _ mr :- T/KeepPlayingType]
   (kp (:board mr)))
 
 (s/defmethod ^:always-validate foldMoveResult :GameFinished :- s/Any
@@ -30,11 +30,11 @@
 
 (s/defn keepPlayingOr :- s/Any
   [e :- s/Any
-   kp :- (s/=> T/BoardType s/Any)
+   kp :- (s/=> T/NotFinishedBoardType s/Any)
    mr :- T/GameFinishedType]
   (foldMoveResult e kp (constantly e) mr))
 
-(s/defn keepPlaying :- s/Any
+(s/defn keepPlaying :- T/NotFinishedBoardType
   [mr :- T/MoveResultType]
   (foldMoveResult nil identity (constantly nil) mr))
 

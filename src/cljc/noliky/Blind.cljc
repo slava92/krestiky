@@ -6,7 +6,7 @@
             [noliky.Types :as T]
             [clojure.set :refer [difference]]))
 
-(def random-moves
+(def deep-thought
   (reify T/strategy
 
     ;; this -> Board

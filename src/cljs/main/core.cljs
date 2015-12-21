@@ -6,8 +6,10 @@
             [noliky.GameResult :as GR]
             [noliky.MoveResult :as MR]
             [noliky.Position :as Pos]
-            [noliky.Player :as Plr]
-            [noliky.Blind :as Robot]
+            [noliky.Player :as PR]
+            [noliky.Blind :as BlindRobot]
+            [noliky.Chase :as Robot]
+            [noliky.Types :as T]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
                                    register-sub
@@ -17,10 +19,10 @@
 (enable-console-print!)
 
 (def initial-state
-  {:player-name (T/show T/Player1)
+  {:player-name (T/show PR/Player1)
    :move-result (T/->KeepPlaying (B/empty-board) :KeepPlaying)
    :board (B/empty-board)
-   :robot Robot/random-moves})
+   :robot Robot/deep-thought})
 
 ;; -- Event Handlers ----------------------------------------------------------
 
@@ -38,7 +40,7 @@
 
 (defn handle-cell-click
   [app-state [_ position board]]
-  (if (not= (BL/whoseTurn board) T/Player1)
+  (if (not= (BL/whoseTurn board) PR/Player1)
     app-state ;; ignore the click if it is not Player1
     (let [board (get-in app-state [:board])
           strategy (get-in app-state [:robot])
@@ -115,7 +117,7 @@
                                    position
                                    @board])}
        (if (contains? @taken position)
-         (Plr/toSymbol (BL/playerAt @board position))
+         (PR/toSymbol (BL/playerAt @board position))
          "")])))
 
 (defn board
@@ -147,7 +149,7 @@
         #(str "Ходит " @name)
         #(GR/playerGameResult
           (str "Выиграл " @name "!")
-          (str "Выиграл " (T/show T/Player2) "!")
+          (str "Выиграл " (T/show PR/Player2) "!")
           "Ничья!"
           (B/getResult %))
         @move)])))
@@ -171,5 +173,5 @@
                   (js/document.getElementById "app")))
 
 (defn ^:export init []
-  (dispatch-sync [:initialize (T/show T/Player1)])
+  (dispatch-sync [:initialize (T/show PR/Player1)])
   (client))

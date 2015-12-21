@@ -138,7 +138,7 @@
     "" (map-indexed
         (fn [idx itm]
           (if (pos m nil itm)
-            (str idx (pos m nil itm))
+            (str (inc idx) (pos m nil itm))
             ""))
         P/positions))))
 
@@ -202,104 +202,13 @@
 (defmethod BL/showBoard :FinishedBoard [fb] (BL/showBoard (:b fb)))
 (defmethod BL/showLine :FinishedBoard [fb] (BL/showLine (:b fb)))
 
-;; instance Show Unfinished where
-(defmethod T/show :UnfinishedEmpty [ub] (T/show (:b ub)))
-(defmethod T/show :UnfinishedBoard [ub] (T/show (:b ub)))
-
-;; TODO: no dispatch by expected result
-;; instance Move Unfinished Unempty where
-;;   p --> UnfinishedEmpty b =
-;;     UnemptyBoard (p --> b)
-;;   p --> UnfinishedBoard b =
-;;     case p --> b of PositionAlreadyOccupied -> UnemptyBoard b
-;;                     KeepPlaying b' -> UnemptyBoard b'
-;;                     GameFinished b' -> UnemptyFinished b'
-
-(defmulti unfinished
-  (fn [feb fb ub] (:type ub)))
-(defmethod unfinished :UnfinishedEmpty [feb fb ub] (feb (:b ub)))
-(defmethod unfinished :UnfinishedBoard [feb fb ub] (fb (:b ub)))
-
-;; instance BoardLike Unfinished where
-(defmethod BL/whoseTurn :UnfinishedEmpty [ub] (BL/whoseTurn (:b ub)))
-(defmethod BL/whoseTurn :UnfinishedBoard [ub] (BL/whoseTurn (:b ub)))
-(defmethod BL/whoseNotTurn :UnfinishedEmpty [ub] (BL/whoseNotTurn (:b ub)))
-(defmethod BL/whoseNotTurn :UnfinishedBoard [ub] (BL/whoseNotTurn (:b ub)))
-(defmethod BL/isEmpty :UnfinishedEmpty [ub] (BL/isEmpty (:b ub)))
-(defmethod BL/isEmpty :UnfinishedBoard [ub] (BL/isEmpty (:b ub)))
-(defmethod BL/occupiedPositions :UnfinishedEmpty [ub] (BL/occupiedPositions (:b ub)))
-(defmethod BL/occupiedPositions :UnfinishedBoard [ub] (BL/occupiedPositions (:b ub)))
-(defmethod BL/moves :UnfinishedEmpty [ub] (BL/moves (:b ub)))
-(defmethod BL/moves :UnfinishedBoard [ub] (BL/moves (:b ub)))
-(defmethod BL/isSubboardOf [:UnfinishedEmpty :UnfinishedEmpty] [_ _] true)
-(defmethod BL/isSubboardOf [:UnfinishedEmpty :UnfinishedBoard] [_ _] true)
-(defmethod BL/isSubboardOf [:UnfinishedBoard :UnfinishedEmpty] [_ _] false)
-(defmethod BL/isSubboardOf [:UnfinishedBoard :UnfinishedBoard] [b1 b2]
-  (BL/isSubboardOf b1 b2))
-(defmethod BL/isProperSubboardOf [:UnfinishedEmpty :UnfinishedEmpty] [_ _] false)
-(defmethod BL/isProperSubboardOf [:UnfinishedEmpty :UnfinishedBoard] [_ _] true)
-(defmethod BL/isProperSubboardOf [:UnfinishedBoard :UnfinishedEmpty] [_ _] false)
-(defmethod BL/isProperSubboardOf [:UnfinishedBoard :UnfinishedBoard] [b1 b2]
-  (BL/isProperSubboardOf b1 b2))
-(defmethod BL/playerAt :UnfinishedEmpty [ub p] (BL/playerAt (:b ub) p))
-(defmethod BL/playerAt :UnfinishedBoard [ub p] (BL/playerAt (:b ub) p))
-(defmethod BL/showBoard :UnfinishedEmpty [ub] (BL/showBoard (:b ub)))
-(defmethod BL/showBoard :UnfinishedBoard [ub] (BL/showBoard (:b ub)))
-(defmethod BL/showLine :UnfinishedEmpty [ub] (BL/showLine (:b ub)))
-(defmethod BL/showLine :UnfinishedBoard [ub] (BL/showLine (:b ub)))
-
-;; instance Show Unempty where
-(defmethod T/show :UnemptyBoard [ub] (T/show (:b ub)))
-(defmethod T/show :UnemptyFinished [ub] (T/show (:b ub)))
-
-;; unempty ::
-;;   (Board -> a)
-;;   -> (FinishedBoard -> a)
-;;   -> Unempty
-;;   -> a
-;; unempty f _ (UnemptyBoard b) =
-;;   f b
-;; unempty _ g (UnemptyFinished b) =
-;;   g b
-(defmulti unempty
-  (fn [fb ffb ue] (:type ue)))
-(defmethod unempty :UnemptyBoard [fb ffb ue] (fb (:b ue)))
-(defmethod unempty :UnemptyFinished [fb ffb ue] (ffb (:b ue)))
-
-;; instance BoardLike Unempty where
-(defmethod BL/whoseTurn :UnemptyBoard [ub] (BL/whoseTurn (:b ub)))
-(defmethod BL/whoseTurn :UnemptyFinished [ub] (BL/whoseTurn (:b ub)))
-(defmethod BL/whoseNotTurn :UnemptyBoard [ub] (BL/whoseNotTurn (:b ub)))
-(defmethod BL/whoseNotTurn :UnemptyFinished [ub] (BL/whoseNotTurn (:b ub)))
-(defmethod BL/isEmpty :UnemptyBoard [ub] (BL/isEmpty (:b ub)))
-(defmethod BL/isEmpty :UnemptyFinished [ub] (BL/isEmpty (:b ub)))
-(defmethod BL/occupiedPositions :UnemptyBoard [ub] (BL/occupiedPositions (:b ub)))
-(defmethod BL/occupiedPositions :UnemptyFinished [ub] (BL/occupiedPositions (:b ub)))
-(defmethod BL/moves :UnemptyBoard [ub] (BL/moves (:b ub)))
-(defmethod BL/moves :UnemptyFinished [ub] (BL/moves (:b ub)))
-(defmethod BL/isSubboardOf [:UnemptyBoard :UnemptyBoard] [_ _] true)
-(defmethod BL/isSubboardOf [:UnemptyBoard :UnemptyFinished] [_ _] true)
-(defmethod BL/isSubboardOf [:UnemptyFinished :UnemptyBoard] [_ _] false)
-(defmethod BL/isSubboardOf [:UnemptyFinished :UnemptyFinished] [b1 b2]
-  (BL/isSubboardOf b1 b2))
-(defmethod BL/isProperSubboardOf [:UnemptyBoard :UnemptyBoard] [_ _] false)
-(defmethod BL/isProperSubboardOf [:UnemptyBoard :UnemptyFinished] [_ _] true)
-(defmethod BL/isProperSubboardOf [:UnemptyFinished :UnemptyBoard] [_ _] false)
-(defmethod BL/isProperSubboardOf [:UnemptyFinished :UnemptyFinished] [b1 b2]
-  (BL/isProperSubboardOf b1 b2))
-(defmethod BL/playerAt :UnemptyBoard [ub p] (BL/playerAt (:b ub) p))
-(defmethod BL/playerAt :UnemptyFinished [ub p] (BL/playerAt (:b ub) p))
-(defmethod BL/showBoard :UnemptyBoard [ub] (BL/showBoard (:b ub)))
-(defmethod BL/showBoard :UnemptyFinished [ub] (BL/showBoard (:b ub)))
-(defmethod BL/showLine :UnemptyBoard [ub] (BL/showLine (:b ub)))
-(defmethod BL/showLine :UnemptyFinished [ub] (BL/showLine (:b ub)))
-
 ;;; test ;;;
 
-(defn tryit []
-  (->> (empty-board)
-       (--> P/C)
-       (--> P/E)
-       (--> P/NE)
-       (--> P/SE)
-       (--> P/SW)))
+;; (defn tryit []
+;;   (->> (empty-board)
+;;        (--> P/C)
+;;        (--> P/E)
+;;        (--> P/NE)
+;;        (--> P/SE)
+;;        ;; (--> P/SW)
+;;        ))
