@@ -18,3 +18,7 @@
 
 (s/defmethod ^:always-validate T/show :Position :- s/Str
   [p :- T/PositionType] (:pos p))
+
+(s/defn index-of :- s/Int
+  [pos :- T/PositionType]
+  (inc (.indexOf positions pos)))
