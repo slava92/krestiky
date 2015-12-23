@@ -9,7 +9,7 @@
    [adzerk/boot-cljs            "1.7.170-3" :scope "test"]
    [adzerk/boot-cljs-repl       "0.3.0"     :scope "test"]
    [adzerk/boot-reload          "0.4.2"     :scope "test"]
-   [adzerk/boot-test            "1.0.6"     :scpoe "test"]
+   [adzerk/boot-test            "1.0.7"     :scpoe "test"]
    [com.cemerick/piggieback     "0.2.1"     :scope "test"]
    [org.clojure/test.check      "0.9.0"     :scope "test"]
    [org.clojure/tools.nrepl     "0.2.12"    :scope "test"]

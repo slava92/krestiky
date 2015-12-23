@@ -10,6 +10,7 @@
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s
                       :include-macros true])
+            [clojure.java.io :as io]
             [clojure.pprint :as p]
             [clojure.string :as str]))
 
@@ -32,52 +33,42 @@
 
 ;;;;;;;;;;;;;;; testing ;;;;;;;;;;;;;;;;;;;;
 
+(def pos-of-first (comp :pos first))
+
 (s/defn show-moves :- s/Str
   [fb :- T/FinishedBoardType]
   (let [moves (get-in fb [:b :moves])
         result (:gr fb)
-        x (G/playerGameResult "1" "2" "0" result)]
-    (str/join
-     ""
+        x (G/playerGameResult "X" "O" "." result)]
+    (apply
+     str
      (concat
+      ["   \""]
       (map
        (fn [[pos player]]
          (str (P/index-of pos) (PL/toSymbol player)))
-       moves)
-      [" " x]))))
+       (sort-by pos-of-first moves))
+      ["\" \"" x "\","]))))
 
-(s/defn nstep :- T/FinishedBoardType
+(s/defn walk! :- [T/FinishedBoardType]
   [board :- T/BoardType]
-  (let [player (BL/whoseTurn board)
-        ;; _ (s/validate T/PlayerType player)
-        attempts (map #(B/--> % board) P/positions)
-        ;; _ (s/validate [T/MoveResultType] attempts)
-        ;; results :- [FinishedBoardType]
-        finished-boards (filter
-                         some?
-                         (map #(M/foldMoveResult nil (constantly nil) identity %)
-                              attempts))
-        ;; _ (s/validate [T/FinishedBoardType] finished-boards)
-        wins (when (seq finished-boards)
-               (filter #(= player (get-in % [:gr :player])) finished-boards))
-        ;; _ (s/validate [T/FinishedBoardType] wins)
-        ]
-    (when (seq finished-boards)
-      (doseq [w finished-boards]
-        (p/pprint (show-moves w))))
-    (if (seq wins)
-      (first wins)
-      (let [fbs (filter
-                 some?
-                 (map #(M/foldMoveResult nil nstep identity %)
-                      attempts))
-            wins' (when (seq fbs)
-                    (filter #(= player (get-in % [:gr :player])) fbs))
-            draws' (when-not (seq wins')
-                     (filter #(= G/Draw (:gr %)) fbs))]
-        (cond
-          (seq wins') (rand-nth wins')
-          (seq draws') (rand-nth draws')
-          :else (rand-nth fbs))))))
+  (s/validate T/BoardType board)
+  (let [attempts (map #(B/--> % board) P/positions)
+        done (mapcat #(M/foldMoveResult [nil] walk! vector %) attempts)
+        done' (filter some? done)]
+    (when (seq done')
+      (doseq [w done']
+        (println (show-moves w))))
+    done'))
+
+(defn genall []
+  (with-open [w (io/writer "FullSpace.clj")]
+    (binding [*out* w]
+      (doseq [board
+              (map #(B/--> % (B/empty-board)) P/positions)]
+        (println "(def moves")
+        (println "  {")
+        (walk! (M/keepPlaying board))
+        (println "  })")))))
 
 (def b1 (T/first-move deep-thought))
