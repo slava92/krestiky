@@ -16,9 +16,17 @@
 (s/def positions :- [T/PositionType]
   [NW N NE W C E SW S SE])
 
+(s/def pos->idx :- {s/Str s/Int}
+  (into {}
+        (map-indexed
+         (fn [idx pos] [(:pos pos) (inc idx)])
+         positions)))
+
+;; s/Char is missing. use s/Any instead
+(s/def char->pos :- {s/Any T/PositionType}
+  {\1 NW, \2 N, \3 NE,
+   \4 W,  \5 C, \6 E,
+   \7 SW, \8 S, \9 SE})
+
 (s/defmethod ^:always-validate T/show :Position :- s/Str
   [p :- T/PositionType] (:pos p))
-
-(s/defn index-of :- s/Int
-  [pos :- T/PositionType]
-  (inc (.indexOf positions pos)))

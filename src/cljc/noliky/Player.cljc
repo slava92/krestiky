@@ -39,6 +39,12 @@
   [p :- T/PlayerType]
   (fold-player "X" "O" p))
 
+;; use s/Any for char since it is not in schema
+(s/defn from-symbol :- T/PlayerType
+  [s :- s/Any]
+  ({\X  Player1, \O  Player2, \.  Nobody,
+    "X" Player1, "O" Player2, "." Nobody,} s))
+
 (s/defmethod ^:always-validate T/show :Player :- s/Str
   [player :- T/PlayerType]
   (:name player))
