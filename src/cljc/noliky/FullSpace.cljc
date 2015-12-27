@@ -1,6 +1,12 @@
-(ns noliky.FullSpace)
+(ns noliky.FullSpace
+  (:require [noliky.Player :as PL]
+            [noliky.Position :as P]
+            [noliky.Types :as T]
+            #?(:clj [schema.core :as s]
+               :cljs [schema.core :as s
+                      :include-macros true])))
 
-(def moves
+(def tags
   {
    "1O2O3O4O5X6X7X8X" "O",
    "1O2O3O4O5X6X7X9X" "O",
@@ -961,3 +967,20 @@
    "4X5X6X8O9O" "X",
    "5O6O7X8X9X" "X",
    })
+
+;; use s/Any for char since it is not in schema
+(s/defn tag->move :- T/MoveType
+  [pos :- s/Any plr :- s/Any]
+  [(P/char->pos pos) (PL/from-symbol plr)])
+
+(s/defn tag->moves :- [T/MoveType]
+  [tag :- s/Str]
+  (loop [[[pos plr] t] (split-at 2 tag) rs []]
+    (if pos
+      (recur (split-at 2 t) (conj rs (tag->move pos plr)))
+      rs)))
+
+(s/def boards :- [(s/pair T/PlayerType "winner" #{T/MoveType} "board")]
+  (map (fn [[ms r]]
+         [(PL/from-symbol r) (into #{} (tag->moves ms))])
+       tags))
