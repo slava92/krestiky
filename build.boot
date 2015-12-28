@@ -33,7 +33,7 @@
   []
   (comp
    (watch)
-   (speak)
+   ;; (speak)
    (cljs-repl)
    (reload :on-jsload 'main.dev/refresh)
    (cljs)))

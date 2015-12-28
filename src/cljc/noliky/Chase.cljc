@@ -46,15 +46,29 @@
            (seq
             (second
              (cond
-               wins (rand-nth (vec wins))
-               draws (rand-nth (vec draws))
-               losts (rand-nth (vec losts))
+               (seq wins) (rand-nth (vec wins))
+               (seq draws) (rand-nth (vec draws))
+               (seq losts) (rand-nth (vec losts))
                :else (T/abstract (str "corrupted game-space: "
                                       (pr-str gs)))))))))))))
 
 ;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;
-(defn tst []
-  (let [some (T/next-move deep-thought (T/first-move deep-thought))]
-    some))
+;; (defn tst []
+;;   (let [some (T/next-move deep-thought (T/first-move deep-thought))]
+;;     some))
 
 (def b1 (T/first-move deep-thought))
+
+(defn tryit []
+  (->> (B/empty-board)
+       (B/--> P/C)
+       (B/--> P/S)
+       (B/--> P/NE)
+       (B/--> P/SW)
+       (B/--> P/SE)
+       ;; (B/--> P/E)
+       ;; (B/--> P/NE)
+       ))
+(def b2 (:board (tryit)))
+
+(defn tst [] (T/next-move deep-thought b2))
