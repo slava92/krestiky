@@ -12,6 +12,7 @@
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s
                       :include-macros true])
+            #?(:clj [clojure.pprint :as p])
             [clojure.string :as str]
             [clojure.set :as set]))
 
@@ -23,6 +24,14 @@
      (filter (s/fn [[_ mvs] :- (s/pair T/PlayerType "winner" #{T/MoveType} "board")]
                (set/subset? moves mvs))
              FS/boards))))
+
+(defn select-one [player games]
+  (->> games
+       (rand-nth)
+       (second)
+       (filter #(= player (second %)))
+       (rand-nth)
+       (first)))
 
 (def deep-thought
   (reify T/strategy
@@ -37,20 +46,33 @@
             player (BL/whoseTurn board)
             player2 (BL/whoseNotTurn board)
             wins (filter #(= player (first %)) gs)
-            losts (filter #(= player2 (first %)) gs)
-            draws (filter #(= PL/Nobody (first %)) gs)]
-        (first
-         (rand-nth
-          (filter
-           #(= player (second %))
-           (seq
-            (second
-             (cond
-               (seq wins) (rand-nth (vec wins))
-               (seq draws) (rand-nth (vec draws))
-               (seq losts) (rand-nth (vec losts))
-               :else (T/abstract (str "corrupted game-space: "
-                                      (pr-str gs)))))))))))))
+            one-move (filter #(= 1 (count (second %))) wins)
+            losses (filter #(= player2 (first %)) gs)
+            two-moves (filter #(= 2 (count (second %))) losses)
+            draws (filter #(= PL/Nobody (first %)) gs)
+            ]
+        ;; #?(:clj (p/pprint (sort-by (comp count second) two-moves)))
+        (cond
+          (seq one-move) (select-one player one-move)
+          (seq two-moves) (let [avoid
+                                (->> two-moves
+                                     (mapcat second)
+                                     (filter #(= player (second %)))
+                                     (map first)
+                                     (into #{}))
+                                possible
+                                (->> gs
+                                     (mapcat second)
+                                     (filter #(= player (second %)))
+                                     (map first)
+                                     (into #{}))
+                                available (set/difference possible avoid)]
+                            (rand-nth (seq available)))
+          (seq wins) (select-one player wins)
+          (seq draws) (select-one player draws)
+          (seq losses) (select-one player losses)
+          :else (T/abstract (str "corrupted game-space: "
+                                 (pr-str gs))))))))
 
 ;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;
 ;; (defn tst []
@@ -62,13 +84,12 @@
 (defn tryit []
   (->> (B/empty-board)
        (B/--> P/C)
-       (B/--> P/S)
-       (B/--> P/NE)
-       (B/--> P/SW)
-       (B/--> P/SE)
-       ;; (B/--> P/E)
-       ;; (B/--> P/NE)
+       (B/--> P/N)
+       (B/--> P/NW)
        ))
 (def b2 (:board (tryit)))
 
-(defn tst [] (T/next-move deep-thought b2))
+(defn tst []
+  #?(:clj (println (BL/showBoard b2)))
+  (T/next-move deep-thought b2)
+  )
