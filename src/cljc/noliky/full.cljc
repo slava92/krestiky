@@ -23,17 +23,15 @@
 
 (s/defn show-moves :- s/Str
   [moves :- [T/MoveType]]
-  (s/validate [T/MoveType] moves)
     (apply
      str
      (map
       (fn [[pos player]]
         (str (P/pos->idx (:pos pos)) (PL/toSymbol player)))
-      (sort-by pos-of-first moves))))
+      (reverse moves))))
 
 (s/defn walk! :- [T/FinishedBoardType]
   [board :- T/BoardType]
-  (s/validate T/BoardType board)
   (let [attempts (map #(B/--> % board) P/positions)
         done (mapcat #(M/foldMoveResult [] (constantly []) vector %)
                      attempts)]
@@ -55,7 +53,7 @@
 
 #?(:clj
    (defn print-all! []
-     (with-open [w (io/writer "FullSpace.clj")]
+     (with-open [w (io/writer "FullSpace.cljc")]
        (binding [*out* w]
          (println "(def moves")
          (println "  {")

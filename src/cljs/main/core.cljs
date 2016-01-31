@@ -1,5 +1,5 @@
 (ns main.core
-  (:require-macros [reagent.ratom :refer [reaction]])  
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [noliky.Types :as T]
             [noliky.Board :as B]
             [noliky.BoardLike :as BL]

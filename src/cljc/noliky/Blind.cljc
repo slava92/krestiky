@@ -16,6 +16,6 @@
 
     ;; this -> Board -> Position
     (next-move [this board]
-      (let [ops (set (BL/occupiedPositions board))
+      (let [ops (BL/occupiedPositions board)
             aps (set P/positions)]
         (rand-nth (seq (difference aps ops)))))))
