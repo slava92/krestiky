@@ -980,7 +980,12 @@
       (recur (split-at 2 t) (conj rs (tag->move pos plr)))
       rs)))
 
-(s/def boards :- [(s/pair T/PlayerType "winner" #{T/MoveType} "board")]
-  (map (fn [[ms r]]
+(def Cell (s/pair T/PositionType "position" T/PlayerType "player"))
+(def BoardSet #{Cell})
+(def Snapshot (s/pair T/PlayerType "whose-turn" BoardSet "board"))
+(def Outcome (s/pair T/PlayerType "winner" BoardSet "board"))
+
+(s/def boards :- [Outcome]
+  (map (s/fn [[ms r] :- [(s/pair s/Str "moves" s/Str "result")]]
          [(PL/from-symbol r) (into #{} (tag->moves ms))])
        tags))

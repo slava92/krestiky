@@ -28,5 +28,5 @@
    \4 W,  \5 C, \6 E,
    \7 SW, \8 S, \9 SE})
 
-(s/defmethod ^:always-validate T/show :Position :- s/Str
+(s/defmethod T/show :Position :- s/Str
   [p :- T/PositionType] (:pos p))

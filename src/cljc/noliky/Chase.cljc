@@ -16,100 +16,139 @@
             [clojure.string :as str]
             [clojure.set :as set]))
 
-;; (s/defn game-space :- [(s/pair T/PlayerType "winner" #{T/MoveType} "board")]
-;;   [board :- T/BoardType]
-;;   (let [moves (:moves board)]
-;;     (map
-;;      (fn [[plr mvs]] [plr (set/difference mvs moves)])
-;;      (filter (s/fn [[_ mvs] :- (s/pair T/PlayerType "winner" #{T/MoveType} "board")]
-;;                (set/subset? moves mvs))
-;;              FS/boards))))
+(def out->winner first)
+(def out->bset second)
+(def cell->pos first)
+(def cell->player second)
+(def out->1st-pos (comp cell->pos first out->bset))
 
-(def CollatedType [(s/one [T/FinishedBoardType] "wins")
-                   (s/one [T/FinishedBoardType] "draws")
-                   (s/one [T/FinishedBoardType] "losses")])
+(s/defn game-space :- [FS/Outcome]
+  [board :- FS/BoardSet]
+  (->> FS/boards
+       (filter (s/fn [[_ mvs] :- FS/Outcome]
+                 (set/subset? board mvs)))
+       (map (s/fn [[plr mvs] :- FS/Outcome]
+              (vector plr (set/difference mvs board))))))
 
-(s/defn collate-boards :- CollatedType
+(s/defn get-moves :- [T/PositionType]
   [player :- T/PlayerType
-   boards :- [T/FinishedBoardType]]
-  (reduce
-   (fn [[wins draws losses] finished]
-     (G/gameResult
-      #(if (= player %)
-         [(conj wins finished) draws losses]
-         [wins draws (conj losses finished)])
-      [wins (conj draws finished) losses]
-      (:gr finished)))
-   [[] [] []]
-   boards))
+   [_ board] :- FS/Outcome]
+  (map cell->pos
+       (filter #(= player (cell->player %)) board)))
 
-(s/defn choose-bests :- [T/FinishedBoardType]
-  [player :- T/PlayerType
-   boards :- [(s/maybe T/FinishedBoardType)]]
-  (let [fbs (collate-boards player (filter some? boards))
-        [wins draws losses] fbs]
-    (cond
-      (not-empty wins) wins
-      (not-empty draws) draws
-      :else losses)))
-
-(declare all-moves)
-(s/defn one-move :- (s/maybe T/FinishedBoardType)
-  [board :- T/BoardType
+(declare all-spots)
+(s/defn one-spot :- (s/pair T/PositionType "position"
+                            FS/Outcome "outcome")
+  [[player board :as snapshot] :- FS/Snapshot
    position :- T/PositionType]
-  (let [move (B/--> position board)
-        over (M/foldMoveResult
-              nil
-              (constantly nil)
-              identity
-              move)]
-    (if over
-      over
-      (M/foldMoveResult
-       nil
-       #(->> %
-             all-moves
-             (choose-bests (BL/whoseTurn board))
-             first)
-       nil
-       move))))
+  (let [board' (conj board [position player])
+        snapshot' [(PL/alternate player) board']
+        outcomes (all-spots snapshot')]
+    (vector position [(out->winner (second (first outcomes))) board'])))
 
-(s/defn all-moves :- [(s/maybe T/FinishedBoardType)]
-  [board :- T/NotFinishedBoardType]
-  (map #(one-move board %) P/positions))
-
-(s/defn best-pos :- T/PositionType
+(s/defn select-best :- [(s/pair T/PositionType "position"
+                                FS/Outcome "outcome")]
   [player :- T/PlayerType
-   fbs :- [(s/maybe T/FinishedBoardType)]]
-  (let [one-board (rand-nth (choose-bests player fbs))
-        bps (map vector P/positions fbs)]
-    (ffirst (filter #(= one-board (second %)) bps))))
+   replies :- [(s/pair T/PositionType "position"
+                       FS/Outcome "outcome")]]
+  (let [outcomes (group-by #(out->winner (second %)) replies)
+        wins (get outcomes player)
+        draws (get outcomes PL/Nobody)
+        lost (get outcomes (PL/alternate player))]
+    (cond (not-empty wins) wins
+          (not-empty draws) draws
+          (not-empty lost) lost
+          :else (T/error "dead end"))))
+
+(s/defn all-spots :- [(s/pair T/PositionType "position"
+                              FS/Outcome "outcome")]
+  [[player board :as sshot] :- FS/Snapshot]
+  (let [outcomes (game-space board)
+        grouped (group-by #(= 1 (count (second %))) outcomes)
+        last-moves (get grouped true)
+        keep-play (get grouped false)
+        wins (filter #(= player (first %)) last-moves)]
+    (if (not-empty wins)
+      (map vector (map #(out->1st-pos %) wins) wins)
+      (let [last-moves' (map #(vector (out->1st-pos %) %) last-moves)
+            moves (set (mapcat #(get-moves player %) keep-play))
+            replies (map #(one-spot sshot %) moves)
+            best (select-best player (concat last-moves' replies))]
+        best))))
+
+(defn snapshot
+  [board]
+  (vector (BL/whoseTurn board) (-> board :positions vec set)))
+
+(s/defn next-spot :- T/PositionType
+  [board :- T/BoardType]
+  (let [sshot (snapshot board)
+        spots (all-spots sshot)]
+    (rand-nth (map first spots))))
 
 (def deep-thought
   (reify T/strategy
 
     ;; this -> Board
     (first-move [this]
-      (T/first-move BS/deep-thought))
+      (.first-move BS/deep-thought))
 
     ;; this -> Board -> Position
     (next-move [this board]
-      (best-pos (BL/whoseTurn board)
-                (all-moves board)))))
+      (next-spot board))))
 
 ;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;
 
 (def b1 (T/first-move deep-thought))
+(def b1s (snapshot b1))
 
 (defn tryit []
   (->> (B/empty-board)
+       (B/--> P/NE)
        (B/--> P/C)
-       (B/--> P/N)
        (B/--> P/NW)
-       ;; (B/--> P/NE)
+       (B/--> P/N)
        ))
 (def b2 (:board (tryit)))
+(def b2s (snapshot b2))
 
 (defn tst [b]
   #?(:clj (println (BL/showBoard b)))
-  (T/next-move deep-thought b))
+  (.next-move deep-thought b))
+
+(defn t2
+  ([] (t2 false))
+  ([validate]
+   (s/set-fn-validation! validate)
+   (next-spot b2)))
+
+(s/defn show-outcome :- s/Str
+  [[player moves] :- FS/Outcome]
+  (str
+   (->> moves
+        seq
+        (map (s/fn [[pos plr] :- FS/Cell]
+               (str (get P/pos->idx (:pos pos)) (PL/toSymbol plr))))
+        sort
+        (apply str))
+   " " (PL/toSymbol player)))
+
+(defn move [s1 s2 board]
+  (let [pos (.next-move s1 board)]
+    (M/foldMoveResult
+     nil
+     #(move s2 s1 %)
+     identity
+     (B/--> pos board))))
+
+(defn play [s1 s2]
+  (let [b0 (T/first-move s1)]
+    (G/playerGameResult
+     "Alice"
+     "Bob"
+     "Draw"
+     (:gr (move s2 s1 b0)))))
+
+(defn tourney [s1 s2]
+  (map (fn [i] (play s1 s2))
+       (range)))

@@ -17,35 +17,35 @@
 (defmulti foldMoveResult
   (fn [occ kp gf mr] (:type mr)))
 
-(s/defmethod ^:always-validate foldMoveResult :PositionOccupied :- s/Any
+(s/defmethod  foldMoveResult :PositionOccupied :- s/Any
   [occ :- s/Any _ _ _] occ)
 
-(s/defmethod ^:always-validate foldMoveResult :KeepPlaying :- s/Any
+(s/defmethod  foldMoveResult :KeepPlaying :- s/Any
   [_ kp :- (s/=> T/NotFinishedBoardType s/Any) _ mr :- T/KeepPlayingType]
   (kp (:board mr)))
 
-(s/defmethod ^:always-validate foldMoveResult :GameFinished :- s/Any
+(s/defmethod  foldMoveResult :GameFinished :- s/Any
   [_ _ gf :- (s/=> T/FinishedBoardType s/Any) mr :- T/GameFinishedType]
   (gf (:board mr)))
 
 (s/defn keepPlayingOr :- s/Any
   [e :- s/Any
    kp :- (s/=> T/NotFinishedBoardType s/Any)
-   mr :- T/GameFinishedType]
+   mr :- T/NotEmptyBoardType]
   (foldMoveResult e kp (constantly e) mr))
 
 (s/defn keepPlaying :- T/NotFinishedBoardType
   [mr :- T/MoveResultType]
   (foldMoveResult nil identity (constantly nil) mr))
 
-(s/defmethod ^:always-validate T/show :PositionOccupied :- s/Str
+(s/defmethod  T/show :PositionOccupied :- s/Str
   [_]
   "*Position already occupied*")
 
-(s/defmethod ^:always-validate T/show :KeepPlaying :- s/Str
+(s/defmethod  T/show :KeepPlaying :- s/Str
   [mr :- T/KeepPlayingType]
   (str "{" (T/show (:board mr)) "}"))
 
-(s/defmethod ^:always-validate T/show :GameFinished :- s/Str
+(s/defmethod  T/show :GameFinished :- s/Str
   [mr :- T/GameFinishedType]
   (str "{{" (T/show (:board mr)) "}}"))

@@ -16,7 +16,7 @@
 (s/defn finished-board :- T/FinishedBoardType [board game-result]
   (T/->FinishedBoard board game-result :FinishedBoard))
 
-(s/defmethod ^:always-validate T/show :EmptyBoard :- s/Str
+(s/defmethod  T/show :EmptyBoard :- s/Str
   [eb :- T/EmptyBoardType]
   ".=?=.=?=.=?=.=?=.=?=.=?=.=?=.=?=.=?=. [ Player 1 to move ]")
 
@@ -25,14 +25,14 @@
 (defmulti --> (fn [pos board] (:type board)))
 
 ;; instance Move EmptyBoard MoveResult where
-(s/defmethod ^:always-validate --> :EmptyBoard :- T/KeepPlayingType
+(s/defmethod  --> :EmptyBoard :- T/KeepPlayingType
   [pos :- T/PositionType from :- T/EmptyBoardType]
   (T/->KeepPlaying
    (T/->Board [[pos PR/Player1]] {pos PR/Player1} :Board)
    :KeepPlaying))
 
 ;; instance Move Board MoveResult where
-(s/defmethod ^:always-validate --> :Board :- T/MoveResultType
+(s/defmethod  --> :Board :- T/MoveResultType
   [pos :- T/PositionType
    {:keys [moves positions] :as bd} :- T/BoardType]
   (let [w (BL/whoseTurn bd)
@@ -60,15 +60,15 @@
           :else (T/->KeepPlaying b' :KeepPlaying))))))
 
 ;; instance Move MoveResult MoveResult where
-(s/defmethod ^:always-validate --> :PositionOccupied :- T/MoveResultType
+(s/defmethod  --> :PositionOccupied :- T/MoveResultType
   [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(s/defmethod ^:always-validate --> :KeepPlaying :- T/MoveResultType
+(s/defmethod  --> :KeepPlaying :- T/MoveResultType
   [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(s/defmethod ^:always-validate --> :GameFinished :- T/MoveResultType
+(s/defmethod  --> :GameFinished :- T/MoveResultType
   [pos :- T/PositionType mr :- T/MoveResultType]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
@@ -80,12 +80,12 @@
 (declare showPositionMap)
 
 ;; instance Show Board where
-(s/defmethod ^:always-validate T/show :Board :- s/Str
+(s/defmethod  T/show :Board :- s/Str
   [b :- T/BoardType]
   (str/join " " [(showPositionMap (:positions b)) "[" (T/show (BL/whoseTurn b)) "to move ]"]))
 
 ;; instance Show FinishedBoard where
-(s/defmethod ^:always-validate T/show :FinishedBoard :- s/Str
+(s/defmethod  T/show :FinishedBoard :- s/Str
   [fb :- T/FinishedBoardType]
   (let [summary (GR/gameResult T/show "draw" (:gr fb))]
     summary
@@ -127,11 +127,11 @@
        "=.=" (pos m "?" P/W)  "=.=" (pos m "?" P/C) "=.=" (pos m "?" P/E)
        "=.=" (pos m "?" P/SW) "=.=" (pos m "?" P/S) "=.=" (pos m "?" P/SE) "=."))
 
-(s/defmethod ^:always-validate BL/showBlock :EmptyBoard :- s/Str
+(s/defmethod  BL/showBlock :EmptyBoard :- s/Str
   [b :- T/EmptyBoardType]
   "00")
 
-(s/defmethod ^:always-validate BL/showBlock :Board :- s/Str
+(s/defmethod  BL/showBlock :Board :- s/Str
   [b :- T/BoardType]
   (let [m (:positions b)]
     (str/join
@@ -142,7 +142,7 @@
             ""))
         P/positions))))
 
-(s/defmethod ^:always-validate BL/showBlock :FinishedBoard :- s/Str
+(s/defmethod  BL/showBlock :FinishedBoard :- s/Str
   [b :- T/FinishedBoardType]
   (BL/showBlock (:b b)))
 

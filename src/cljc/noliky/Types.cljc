@@ -39,6 +39,9 @@
      gr :- GameResult
      type :- s/Keyword])
 (def FinishedBoardType (su/class-schema FinishedBoard))
+(def NotEmptyBoardType
+  (s/conditional #(= (:type %) :Board) BoardType
+                 #(= (:type %) :FinishedBoard) FinishedBoardType))
 
 ;; (t/defalias MoveResult (t/U PositionOccupied KeepPlaying GameFinished))
 (s/defrecord PositionOccupied [type :- s/Keyword])
@@ -85,5 +88,5 @@
 (s/defn undefined [] (abstract "TBI"))
 
 (defmulti show (fn [x] (:type x)))
-(s/defmethod ^:always-validate show :default :- s/Str
+(s/defmethod show :default :- s/Str
   [x :- PlayerType] (abstract "show"))

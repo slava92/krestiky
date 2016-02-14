@@ -37,7 +37,9 @@
 
 (s/defn toSymbol :- s/Str
   [p :- T/PlayerType]
-  (fold-player "X" "O" p))
+  ({Player1 "X"
+    Player2 "O"
+    Nobody "."} p))
 
 ;; use s/Any for char since it is not in schema
 (s/defn from-symbol :- T/PlayerType
@@ -45,6 +47,6 @@
   ({\X  Player1, \O  Player2, \.  Nobody,
     "X" Player1, "O" Player2, "." Nobody,} s))
 
-(s/defmethod ^:always-validate T/show :Player :- s/Str
+(s/defmethod T/show :Player :- s/Str
   [player :- T/PlayerType]
   (:name player))
