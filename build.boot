@@ -5,7 +5,7 @@
    [reagent                     "0.5.1"]
    [org.clojure/clojure         "1.8.0"]
    [org.clojure/clojurescript   "1.7.228"]
-   [prismatic/schema            "1.0.4"]
+   [prismatic/schema            "1.0.5"]
    [adzerk/boot-cljs            "1.7.228-1" :scope "test"]
    [adzerk/boot-cljs-repl       "0.3.0"     :scope "test"]
    [adzerk/boot-reload          "0.4.5"     :scope "test"]
