@@ -22,29 +22,22 @@
 (def cell->player second)
 (def out->1st-pos (comp cell->pos first out->bset))
 
-(s/defn game-space :- [FS/Outcome]
-  [board :- FS/BoardSet]
-  (->> FS/boards
-       (filter (s/fn [[_ mvs] :- FS/Outcome]
-                 (set/subset? board mvs)))
-       (map (s/fn [[plr mvs] :- FS/Outcome]
-              (vector plr (set/difference mvs board))))))
+(s/defn game-space :- (s/pair [FS/Outcome] "outcomes"
+                              [FS/Outcome] "deltas")
+  [board :- FS/BoardSet
+   space :- [FS/Outcome]]
+  (let [outcomes (filter (s/fn [[_ mvs] :- FS/Outcome]
+                           (set/subset? board mvs))
+                         space)
+        deltas (map (s/fn [[plr mvs] :- FS/Outcome]
+                      (vector plr (set/difference mvs board))) outcomes)]
+    (vector outcomes deltas)))
 
 (s/defn get-moves :- [T/PositionType]
   [player :- T/PlayerType
    [_ board] :- FS/Outcome]
   (map cell->pos
        (filter #(= player (cell->player %)) board)))
-
-(declare all-spots)
-(s/defn one-spot :- (s/pair T/PositionType "position"
-                            FS/Outcome "outcome")
-  [[player board :as snapshot] :- FS/Snapshot
-   position :- T/PositionType]
-  (let [board' (conj board [position player])
-        snapshot' [(PL/alternate player) board']
-        outcomes (all-spots snapshot')]
-    (vector position [(out->winner (second (first outcomes))) board'])))
 
 (s/defn select-best :- [(s/pair T/PositionType "position"
                                 FS/Outcome "outcome")]
@@ -60,21 +53,56 @@
           (not-empty lost) lost
           :else (T/error "dead end"))))
 
+(s/defn win-spots :- [(s/pair T/PositionType "position"
+                              FS/Outcome "outcome")]
+  [player :- T/PlayerType
+   deltas]
+  (let [wins (filter
+              (fn [[winner board]]
+                (and (= 1 (count board))
+                     (= player winner)))
+              deltas)]
+    (if (not-empty wins)
+      (map vector (map #(out->1st-pos %) wins) wins)
+      (vector))))
+
+(declare other-spots)
+(s/defn one-spot :- (s/pair T/PositionType "position"
+                            FS/Outcome "outcome")
+  [[player board] :- FS/Snapshot
+   position :- T/PositionType
+   space]
+  (let [board' (conj board [position player])
+        player' (PL/alternate player)
+        snapshot' [player' board']
+        [space' deltas] (game-space board' space)
+        wins (win-spots player' deltas)]
+    (if (not-empty wins)
+      (vector position [(out->winner (second (first wins))) board'])
+      (let [outcomes' (other-spots snapshot' space' deltas)]
+        (vector position [(out->winner (second (first outcomes'))) board'])))))
+
+(s/defn other-spots :- [(s/pair T/PositionType "position"
+                                FS/Outcome "outcome")]
+  [[player _ :as sshot] :- FS/Snapshot
+   space
+   deltas]
+  (let [grouped (group-by #(= 1 (count (second %))) deltas)
+        last-moves (get grouped true)
+        keep-play (get grouped false)
+        last-moves' (map #(vector (out->1st-pos %) %) last-moves)
+        moves (set (mapcat #(get-moves player %) keep-play))
+        replies (map #(one-spot sshot % space) moves)]
+    (select-best player (concat last-moves' replies))))
+
 (s/defn all-spots :- [(s/pair T/PositionType "position"
                               FS/Outcome "outcome")]
   [[player board :as sshot] :- FS/Snapshot]
-  (let [outcomes (game-space board)
-        grouped (group-by #(= 1 (count (second %))) outcomes)
-        last-moves (get grouped true)
-        keep-play (get grouped false)
-        wins (filter #(= player (first %)) last-moves)]
+  (let [[space deltas] (game-space board FS/boards)
+        wins (win-spots player deltas)]
     (if (not-empty wins)
-      (map vector (map #(out->1st-pos %) wins) wins)
-      (let [last-moves' (map #(vector (out->1st-pos %) %) last-moves)
-            moves (set (mapcat #(get-moves player %) keep-play))
-            replies (map #(one-spot sshot %) moves)
-            best (select-best player (concat last-moves' replies))]
-        best))))
+      wins
+      (other-spots sshot space deltas))))
 
 (defn snapshot
   [board]
@@ -99,7 +127,7 @@
 
 ;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;
 
-(def b1 (T/first-move deep-thought))
+(def b1 (.first-move deep-thought))
 (def b1s (snapshot b1))
 
 (defn tryit []
@@ -114,7 +142,7 @@
 
 (defn tst [b]
   #?(:clj (println (BL/showBoard b)))
-  (.next-move deep-thought b))
+  (time (.next-move deep-thought b)))
 
 (defn t2
   ([] (t2 false))
