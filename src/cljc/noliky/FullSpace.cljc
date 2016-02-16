@@ -968,13 +968,12 @@
    "5O6O7X8X9X" "X",
    })
 
-;; use s/Any for char since it is not in schema
-(s/defn tag->move :- T/MoveType
-  [pos :- s/Any plr :- s/Any]
+(defn tag->move
+  [pos plr]
   [(P/char->pos pos) (PL/from-symbol plr)])
 
-(s/defn tag->moves :- [T/MoveType]
-  [tag :- s/Str]
+(defn tag->moves
+  [tag]
   (loop [[[pos plr] t] (split-at 2 tag) rs []]
     (if pos
       (recur (split-at 2 t) (conj rs (tag->move pos plr)))
@@ -985,7 +984,7 @@
 (def Snapshot (s/pair T/PlayerType "whose-turn" BoardSet "board"))
 (def Outcome (s/pair T/PlayerType "winner" BoardSet "board"))
 
-(s/def boards :- [Outcome]
-  (map (s/fn [[ms r] :- [(s/pair s/Str "moves" s/Str "result")]]
+(def boards
+  (map (fn [[ms r]]
          [(PL/from-symbol r) (into #{} (tag->moves ms))])
        tags))

@@ -3,49 +3,49 @@
             #?(:clj [schema.core :as s]
                :cljs [schema.core :as s :include-macros true])))
 
-(s/defn position-occupied :- T/PositionOccupiedType []
+(defn position-occupied []
   (T/->PositionOccupied :PositionOccupied))
 
-(s/defn keep-playing :- T/KeepPlayingType
-  [board :- T/BoardType]
+(defn keep-playing
+  [board]
   (T/->KeepPlaying board :KeepPlaying))
 
-(s/defn game-finished :- T/GameFinishedType
-  [board :- T/FinishedBoardType]
+(defn game-finished
+  [board]
   (T/->GameFinished board :GameFinished))
 
 (defmulti foldMoveResult
   (fn [occ kp gf mr] (:type mr)))
 
-(s/defmethod  foldMoveResult :PositionOccupied :- s/Any
-  [occ :- s/Any _ _ _] occ)
+(defmethod  foldMoveResult :PositionOccupied
+  [occ _ _ _] occ)
 
-(s/defmethod  foldMoveResult :KeepPlaying :- s/Any
-  [_ kp :- (s/=> T/NotFinishedBoardType s/Any) _ mr :- T/KeepPlayingType]
+(defmethod  foldMoveResult :KeepPlaying
+  [_ kp _ mr]
   (kp (:board mr)))
 
-(s/defmethod  foldMoveResult :GameFinished :- s/Any
-  [_ _ gf :- (s/=> T/FinishedBoardType s/Any) mr :- T/GameFinishedType]
+(defmethod  foldMoveResult :GameFinished
+  [_ _ gf mr]
   (gf (:board mr)))
 
-(s/defn keepPlayingOr :- s/Any
-  [e :- s/Any
-   kp :- (s/=> T/NotFinishedBoardType s/Any)
-   mr :- T/NotEmptyBoardType]
+(defn keepPlayingOr
+  [e
+   kp
+   mr]
   (foldMoveResult e kp (constantly e) mr))
 
-(s/defn keepPlaying :- T/NotFinishedBoardType
-  [mr :- T/MoveResultType]
+(defn keepPlaying
+  [mr]
   (foldMoveResult nil identity (constantly nil) mr))
 
-(s/defmethod  T/show :PositionOccupied :- s/Str
+(defmethod  T/show :PositionOccupied
   [_]
   "*Position already occupied*")
 
-(s/defmethod  T/show :KeepPlaying :- s/Str
-  [mr :- T/KeepPlayingType]
+(defmethod  T/show :KeepPlaying
+  [mr]
   (str "{" (T/show (:board mr)) "}"))
 
-(s/defmethod  T/show :GameFinished :- s/Str
-  [mr :- T/GameFinishedType]
+(defmethod  T/show :GameFinished
+  [mr]
   (str "{{" (T/show (:board mr)) "}}"))

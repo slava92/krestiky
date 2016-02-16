@@ -3,50 +3,50 @@
                 :cljs [schema.core :as s :include-macros true])
              [noliky.Types :as T]))
 
-(s/defn player :- T/PlayerType
+(defn player
   [name]
   (T/->Player name :Player))
 
-(s/def Player1 :- T/PlayerType (player "Alice"))
-(s/def Player2 :- T/PlayerType (player "Bob"))
-(s/def Nobody :- T/PlayerType (player "Ghost"))
+(def Player1 (player "Alice"))
+(def Player2 (player "Bob"))
+(def Nobody (player "Ghost"))
 
-(s/defn fold-player :- s/Any
-  [a :- s/Any
-   b :- s/Any
-   p :- T/PlayerType]
+(defn fold-player
+  [a
+   b
+   p]
   (if (= p Player1) a b))
 
-(s/defn isPlayer1 :- s/Bool
-  [p :- T/PlayerType]
+(defn isPlayer1
+  [p]
   (fold-player true false p))
 
-(s/defn isPlayer2 :- s/Bool
-  [p :- T/PlayerType]
+(defn isPlayer2
+  [p]
   (fold-player false true p))
 
-(s/defn player1 :- T/PlayerType
+(defn player1
   [] Player1)
 
-(s/defn player2 :- T/PlayerType
+(defn player2
   [] Player2)
 
-(s/defn alternate :- T/PlayerType
-  [p :- T/PlayerType]
+(defn alternate
+  [p]
   (fold-player Player2 Player1 p))
 
-(s/defn toSymbol :- s/Str
-  [p :- T/PlayerType]
+(defn toSymbol
+  [p]
   ({Player1 "X"
     Player2 "O"
     Nobody "."} p))
 
 ;; use s/Any for char since it is not in schema
-(s/defn from-symbol :- T/PlayerType
-  [s :- s/Any]
+(defn from-symbol
+  [s]
   ({\X  Player1, \O  Player2, \.  Nobody,
     "X" Player1, "O" Player2, "." Nobody,} s))
 
-(s/defmethod T/show :Player :- s/Str
-  [player :- T/PlayerType]
+(defmethod T/show :Player
+  [player]
   (:name player))

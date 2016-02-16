@@ -25,16 +25,16 @@
 (defmulti --> (fn [pos board] (:type board)))
 
 ;; instance Move EmptyBoard MoveResult where
-(s/defmethod  --> :EmptyBoard :- T/KeepPlayingType
-  [pos :- T/PositionType from :- T/EmptyBoardType]
+(defmethod  --> :EmptyBoard
+  [pos from]
   (T/->KeepPlaying
    (T/->Board [[pos PR/Player1]] {pos PR/Player1} :Board)
    :KeepPlaying))
 
 ;; instance Move Board MoveResult where
-(s/defmethod  --> :Board :- T/MoveResultType
-  [pos :- T/PositionType
-   {:keys [moves positions] :as bd} :- T/BoardType]
+(defmethod  --> :Board
+  [pos
+   {:keys [moves positions] :as bd}]
   (let [w (BL/whoseTurn bd)
         j (BL/playerAt bd pos)]
     (if j
@@ -60,16 +60,16 @@
           :else (T/->KeepPlaying b' :KeepPlaying))))))
 
 ;; instance Move MoveResult MoveResult where
-(s/defmethod  --> :PositionOccupied :- T/MoveResultType
-  [pos :- T/PositionType mr :- T/MoveResultType]
+(defmethod  --> :PositionOccupied
+  [pos mr]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(s/defmethod  --> :KeepPlaying :- T/MoveResultType
-  [pos :- T/PositionType mr :- T/MoveResultType]
+(defmethod  --> :KeepPlaying
+  [pos mr]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
-(s/defmethod  --> :GameFinished :- T/MoveResultType
-  [pos :- T/PositionType mr :- T/MoveResultType]
+(defmethod  --> :GameFinished
+  [pos mr]
   (MR/keepPlayingOr mr #(--> pos %) mr))
 
 ;; | Return the result of a completed tic-tac-toe game.
@@ -147,7 +147,7 @@
   (BL/showBlock (:b b)))
 
 ;; instance BoardLike EmptyBoard where
-(s/defn empty-board :- T/EmptyBoardType
+(defn empty-board
   []
   (T/->EmptyBoard :EmptyBoard))
 
