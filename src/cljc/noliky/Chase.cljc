@@ -165,7 +165,7 @@
    " " (PL/toSymbol player)))
 
 (defn move [s1 s2 board]
-  (let [pos (.next-move s1 board)]
+  (let [pos (T/next-move s1 board)]
     (M/foldMoveResult
      nil
      #(move s2 s1 %)

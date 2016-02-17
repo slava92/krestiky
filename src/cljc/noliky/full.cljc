@@ -3,7 +3,6 @@
             [noliky.BoardLike :as BL]
             [noliky.Chase :as C]
             [noliky.GameResult :as G]
-            [noliky.GameSpace :as GS]
             [noliky.FullSpace :as FS]
             [noliky.Blind :as BS]
             [noliky.MoveResult :as M]
