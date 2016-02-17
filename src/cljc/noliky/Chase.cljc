@@ -88,13 +88,24 @@
         replies (map #(one-spot sshot % space) moves)]
     (select-best player (concat last-moves' replies))))
 
+(defn select-corner
+  [board]
+  (let [taken (set (map first board))
+        poss (filter #(not (taken %)) [P/NW P/NE P/SW P/SE])]
+    (if (not (taken P/C))
+      [[P/C nil]]
+      (map vector poss poss))))
+
 (defn all-spots
   [[player board :as sshot]]
-  (let [[space deltas] (game-space board FS/boards)
-        wins (win-spots player deltas)]
-    (if (not-empty wins)
-      wins
-      (other-spots sshot space deltas))))
+  (if (= 1 (count board))
+    (select-corner board)
+    (let [steps (count board)
+          [space deltas] (game-space board FS/boards)
+          wins (win-spots player deltas)]
+      (if (not-empty wins)
+        wins
+        (other-spots sshot space deltas)))))
 
 (defn snapshot
   [board]
