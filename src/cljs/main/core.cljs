@@ -8,7 +8,8 @@
             [noliky.Position :as Pos]
             [noliky.Player :as PR]
             [noliky.Blind :as BlindRobot]
-            [noliky.Chase :as Robot]
+            [noliky.Chase :as SlowRobot]
+            [noliky.Space :as Robot]
             [noliky.Types :as T]
             [reagent.core :as reagent :refer [atom]]
             [re-frame.core :refer [register-handler
